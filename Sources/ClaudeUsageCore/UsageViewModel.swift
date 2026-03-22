@@ -116,8 +116,7 @@ public final class UsageViewModel: ObservableObject {
                let used = extra.usedCreditsAmount, let limit = extra.monthlyLimitAmount {
                 creditProjection = BurnRateCalculator.projectCredits(
                     usedDollars: used,
-                    limitDollars: limit,
-                    historyStartDate: historyPoints.first?.timestamp
+                    limitDollars: limit
                 )
             } else {
                 creditProjection = nil
