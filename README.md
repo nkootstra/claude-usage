@@ -1,6 +1,6 @@
 # Claude Usage
 
-A macOS menubar app that tracks your Claude AI usage in real time.
+A macOS menubar app that tracks your Claude (Code) usage in real time.
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-blue)
 ![Swift 6](https://img.shields.io/badge/Swift-6-orange)
@@ -19,6 +19,7 @@ A macOS menubar app that tracks your Claude AI usage in real time.
 - **Browser sign-in** — OAuth PKCE fallback for users without Claude Code
 - **Auto-polling** — configurable interval (1/5/15/30 min) with exponential backoff
 - **Sleep/wake aware** — pauses polling on sleep, resumes on wake
+- **Multi-language** — English, Dutch, German, French, Spanish, Portuguese (BR & PT)
 - **Light & dark mode** — system colors throughout
 
 ## Installation
@@ -99,37 +100,6 @@ swift run ClaudeUsageApp
 # Build signed app locally
 xcodegen generate
 xcodebuild -project ClaudeUsage.xcodeproj -scheme ClaudeUsage -configuration Release
-```
-
-### Project structure
-
-```
-Sources/
-  ClaudeUsageCore/     # Business logic (testable, no UI)
-    UsageResponse        Data models for API response
-    KeychainReader       OAuth token from Keychain
-    AnthropicAPIClient   HTTP client
-    TokenRefreshingClient  Auth retry + backoff wrapper
-    UsageViewModel       Polling, state, history recording
-    UsageHistoryStore    SQLite persistence (GRDB)
-    BurnRateCalculator   Usage velocity + exhaustion projection
-    NotificationService  Threshold + burn rate alerts
-    OAuthFlow            PKCE browser auth
-    Downsampler          Bucket averaging for charts
-    CSVExporter          History export
-    Constants            Shared OAuth config
-
-  ClaudeUsageApp/      # SwiftUI views
-    App                  Entry point + AppDelegate
-    MenuBarLabel         Ring gauge in menubar
-    PopoverView          Main popover container
-    UsageViews           Card grid + progress bars
-    UsageChartView       Swift Charts area chart
-    SettingsView         Polling, notifications, launch at login
-    AuthViews            OAuth sign-in flow
-
-Tests/
-  ClaudeUsageTests/    # 97 tests across 11 suites
 ```
 
 ### CI/CD
