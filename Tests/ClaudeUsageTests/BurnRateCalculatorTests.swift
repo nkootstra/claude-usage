@@ -71,39 +71,67 @@ struct BurnRateCalculatorTests {
         #expect(projection.projectedExhaustionDate == nil)
     }
 
-    @Test("Credit burn rate projects exhaustion")
+    @Test("Credit burn rate on day 22 of month")
     func creditBurn() {
-        // $15 used of $100 over 5 days = $3/day → exhausts in ~28.3 more days
+        // Day 22, $66 used of $150 → ~$3/day
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(identifier: "UTC")!
+        let day22 = cal.date(from: DateComponents(year: 2026, month: 3, day: 22, hour: 12))!
+
         let projection = BurnRateCalculator.projectCredits(
-            usedDollars: 15,
-            limitDollars: 100,
-            historyStartDate: Date().addingTimeInterval(-5 * 86400)
+            usedDollars: 66,
+            limitDollars: 150,
+            now: day22
         )
 
         #expect(projection.burnRatePerDay > 2.5 && projection.burnRatePerDay < 3.5)
         #expect(projection.projectedExhaustionDate != nil)
     }
 
-    @Test("Zero credits used returns nil exhaustion")
+    @Test("Zero credits used returns nil")
     func zeroCreditBurn() {
         let projection = BurnRateCalculator.projectCredits(
             usedDollars: 0,
-            limitDollars: 100,
-            historyStartDate: Date().addingTimeInterval(-86400)
+            limitDollars: 100
         )
 
-        #expect(projection.burnRatePerDay == 0)
         #expect(projection.projectedExhaustionDate == nil)
     }
 
-    @Test("No history start date returns nil exhaustion")
-    func noHistoryStart() {
+    @Test("Day 1 of month returns nil — not enough data")
+    func day1ReturnsNil() {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(identifier: "UTC")!
+        let day1 = cal.date(from: DateComponents(year: 2026, month: 3, day: 1, hour: 6))!
+
         let projection = BurnRateCalculator.projectCredits(
-            usedDollars: 50,
+            usedDollars: 10,
             limitDollars: 100,
-            historyStartDate: nil
+            now: day1
         )
 
         #expect(projection.projectedExhaustionDate == nil)
+    }
+
+    @Test("Projection capped to end of month")
+    func cappedToMonthEnd() {
+        // Day 28, $10 used of $1000 → very slow burn, but capped to month end
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(identifier: "UTC")!
+        let day28 = cal.date(from: DateComponents(year: 2026, month: 3, day: 28, hour: 12))!
+
+        let projection = BurnRateCalculator.projectCredits(
+            usedDollars: 10,
+            limitDollars: 1000,
+            now: day28
+        )
+
+        // Should not project past March 31
+        if let exhaustion = projection.projectedExhaustionDate {
+            let endOfMonth = cal.date(from: DateComponents(year: 2026, month: 3, day: 31, hour: 23, minute: 59, second: 59))!
+            #expect(exhaustion <= endOfMonth.addingTimeInterval(86400))
+        }
+        // With $10/28days ≈ $0.36/day, $990 remaining → ~2750 days → capped
+        #expect(projection.burnRatePerDay > 0.3 && projection.burnRatePerDay < 0.4)
     }
 }

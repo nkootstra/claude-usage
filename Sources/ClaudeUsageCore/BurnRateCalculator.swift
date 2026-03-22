@@ -60,29 +60,35 @@ public enum BurnRateCalculator {
     }
 
     /// Project when enterprise credits will be exhausted.
+    /// Assumes calendar month billing cycle (resets on 1st).
     public static func projectCredits(
         usedDollars: Double,
         limitDollars: Double,
-        historyStartDate: Date?,
         now: Date = Date()
     ) -> CreditBurnProjection {
-        guard let start = historyStartDate else {
+        let cal = Calendar.current
+        let dayOfMonth = cal.component(.day, from: now)
+
+        // Need at least 1 full day of data
+        guard dayOfMonth > 1, usedDollars > 0, limitDollars > 0 else {
             return CreditBurnProjection(burnRatePerDay: 0, projectedExhaustionDate: nil)
         }
 
-        let daysSinceStart = now.timeIntervalSince(start) / 86400
-        guard daysSinceStart > 0, usedDollars > 0 else {
-            return CreditBurnProjection(burnRatePerDay: 0, projectedExhaustionDate: nil)
-        }
-
-        let burnRatePerDay = usedDollars / daysSinceStart
+        let burnRatePerDay = usedDollars / Double(dayOfMonth)
         let remaining = limitDollars - usedDollars
+
         guard remaining > 0 else {
             return CreditBurnProjection(burnRatePerDay: burnRatePerDay, projectedExhaustionDate: now)
         }
 
-        let daysRemaining = remaining / burnRatePerDay
-        let exhaustionDate = now.addingTimeInterval(daysRemaining * 86400)
+        let daysUntilExhaustion = remaining / burnRatePerDay
+
+        // Cap to end of month — credits reset
+        let daysInMonth = Double(cal.range(of: .day, in: .month, for: now)?.count ?? 30)
+        let daysLeftInMonth = daysInMonth - Double(dayOfMonth)
+        let effectiveDays = min(daysUntilExhaustion, daysLeftInMonth)
+
+        let exhaustionDate = now.addingTimeInterval(effectiveDays * 86400)
 
         return CreditBurnProjection(burnRatePerDay: burnRatePerDay, projectedExhaustionDate: exhaustionDate)
     }
