@@ -1,0 +1,210 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  APP_NAME: ClaudeUsage
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests
+        run: swift test
+
+  build-and-release:
+    needs: test
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "build_number=${{ github.run_number }}" >> $GITHUB_OUTPUT
+          echo "Releasing version: $VERSION"
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Update version in Info.plist
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          BUILD="${{ steps.version.outputs.build_number }}"
+          perl -i -p0e "s|(<key>CFBundleShortVersionString</key>\s*<string>)[^<]*(</string>)|\${1}${VERSION}\${2}|s" Resources/Info.plist
+          perl -i -p0e "s|(<key>CFBundleVersion</key>\s*<string>)[^<]*(</string>)|\${1}${BUILD}\${2}|s" Resources/Info.plist
+
+      - name: Update version in project.yml
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          BUILD="${{ steps.version.outputs.build_number }}"
+          sed -i '' "s/MARKETING_VERSION: .*/MARKETING_VERSION: ${VERSION}/" project.yml
+          sed -i '' "s/CURRENT_PROJECT_VERSION: .*/CURRENT_PROJECT_VERSION: ${BUILD}/" project.yml
+
+      - name: Import Code-Signing Certificates
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
+          p12-password: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Resolve Swift Package dependencies
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project ClaudeUsage.xcodeproj \
+            -scheme ClaudeUsage
+
+      - name: Build and Sign Application
+        env:
+          CODE_SIGN_IDENTITY: ${{ secrets.MACOS_CERTIFICATE_NAME }}
+        run: |
+          xcodebuild -project ClaudeUsage.xcodeproj \
+            -scheme ClaudeUsage \
+            -configuration Release \
+            -derivedDataPath build/DerivedData \
+            -skipPackagePluginValidation \
+            CODE_SIGN_STYLE="Manual" \
+            CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY" \
+            DEVELOPMENT_TEAM="${{ secrets.AC_TEAM_ID }}" \
+            CODE_SIGNING_REQUIRED=YES \
+            CODE_SIGNING_ALLOWED=YES \
+            ENABLE_HARDENED_RUNTIME=YES \
+            CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
+            OTHER_CODE_SIGN_FLAGS="--timestamp --options runtime" \
+            ONLY_ACTIVE_ARCH=NO \
+            build
+
+      - name: Verify signature
+        run: |
+          APP_PATH=$(find build/DerivedData -name "${APP_NAME}.app" -type d | head -1)
+          echo "Verifying signature of $APP_PATH"
+          codesign -dvv "$APP_PATH"
+          codesign --verify --deep --strict "$APP_PATH"
+          echo "Signature valid"
+
+      - name: Find built app
+        id: find_app
+        run: |
+          APP_PATH=$(find build/DerivedData -name "${APP_NAME}.app" -type d | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: Could not find built app"
+            exit 1
+          fi
+          echo "app_path=$APP_PATH" >> $GITHUB_OUTPUT
+
+      - name: Create DMG
+        id: dmg
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          APP_PATH="${{ steps.find_app.outputs.app_path }}"
+          DMG_DIR="build/dmg"
+          DMG_NAME="${APP_NAME}-${VERSION}.dmg"
+
+          mkdir -p "$DMG_DIR"
+          cp -R "$APP_PATH" "$DMG_DIR/"
+          ln -s /Applications "$DMG_DIR/Applications"
+
+          hdiutil create -volname "${APP_NAME}" \
+            -srcfolder "$DMG_DIR" \
+            -ov \
+            -format UDZO \
+            "build/${DMG_NAME}"
+
+          echo "dmg_path=build/${DMG_NAME}" >> $GITHUB_OUTPUT
+          echo "dmg_name=${DMG_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Notarize DMG
+        run: |
+          RESULT=$(xcrun notarytool submit "${{ steps.dmg.outputs.dmg_path }}" \
+            --apple-id "${{ secrets.AC_USERNAME }}" \
+            --password "${{ secrets.AC_PASSWORD }}" \
+            --team-id "${{ secrets.AC_TEAM_ID }}" \
+            --wait 2>&1)
+
+          echo "$RESULT"
+
+          # Extract submission ID for log retrieval
+          SUB_ID=$(echo "$RESULT" | grep "id:" | head -1 | awk '{print $2}')
+
+          if echo "$RESULT" | grep -q "status: Invalid"; then
+            echo "Notarization failed. Fetching log..."
+            xcrun notarytool log "$SUB_ID" \
+              --apple-id "${{ secrets.AC_USERNAME }}" \
+              --password "${{ secrets.AC_PASSWORD }}" \
+              --team-id "${{ secrets.AC_TEAM_ID }}"
+            exit 1
+          fi
+
+          if ! echo "$RESULT" | grep -q "status: Accepted"; then
+            echo "Unexpected notarization status"
+            exit 1
+          fi
+
+      - name: Staple Notarization Ticket
+        run: |
+          for i in 1 2 3 4 5; do
+            echo "Stapling attempt $i..."
+            if xcrun stapler staple "${{ steps.dmg.outputs.dmg_path }}"; then
+              echo "Notarization ticket stapled"
+              exit 0
+            fi
+            sleep 30
+          done
+          echo "Failed to staple after 5 attempts"
+          exit 1
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s" -20)
+          else
+            COMMITS=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s")
+          fi
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "commits<<$EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Claude Usage ${{ steps.version.outputs.version }}
+          files: ${{ steps.dmg.outputs.dmg_path }}
+          body: |
+            ## Claude Usage ${{ steps.version.outputs.version }}
+
+            ### Changes
+            ${{ steps.release_notes.outputs.commits }}
+
+            ### Installation
+            1. Download **${{ steps.dmg.outputs.dmg_name }}** below
+            2. Open the DMG and drag Claude Usage to Applications
+            3. The app lives in your menubar — no dock icon
+
+            ### Requirements
+            - macOS 14 (Sonoma) or later
+            - Claude Code installed (for automatic auth), or sign in via browser
+
+            ---
+            Build: ${{ steps.version.outputs.build_number }} | Commit: ${{ github.sha }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

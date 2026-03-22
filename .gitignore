@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# Swift Package Manager
+/.build
+/Packages
+Package.resolved
+.swiftpm/
+
+# Xcode
+xcuserdata/
+DerivedData/
+*.xcodeproj
+
+# Build artifacts (xcodebuild)
+/build
+
+# Claude Code
+.claude/
+
+# Internal planning docs
+/plans
+
+# Credentials
+.netrc
+*.p12
