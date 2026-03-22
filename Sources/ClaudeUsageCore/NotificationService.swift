@@ -69,8 +69,8 @@ public final class NotificationService: Sendable {
     public func sendBurnRateNotification(bucketLabel: String, minutesRemaining: Double) {
         guard Bundle.main.bundleIdentifier != nil else { return }
         let content = UNMutableNotificationContent()
-        content.title = "Claude Usage Warning"
-        content.body = "At current pace, you'll hit the \(bucketLabel) limit in ~\(Int(minutesRemaining)) minutes"
+        content.title = String(localized: "notification.burnRate.title", bundle: .main)
+        content.body = String(localized: "notification.burnRate.body \(bucketLabel) \(Int(minutesRemaining))", bundle: .main)
         content.sound = .default
 
         let request = UNNotificationRequest(
@@ -84,8 +84,8 @@ public final class NotificationService: Sendable {
     private func sendNotification(threshold: Double, current: Double) {
         guard Bundle.main.bundleIdentifier != nil else { return }
         let content = UNMutableNotificationContent()
-        content.title = "Claude Usage Alert"
-        content.body = "5-hour usage at \(Int(current))% (threshold: \(Int(threshold))%)"
+        content.title = String(localized: "notification.threshold.title", bundle: .main)
+        content.body = String(localized: "notification.threshold.body \(Int(current)) \(Int(threshold))", bundle: .main)
         content.sound = .default
 
         let request = UNNotificationRequest(

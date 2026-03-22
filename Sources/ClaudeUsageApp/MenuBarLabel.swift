@@ -3,6 +3,7 @@ import ClaudeUsageCore
 
 struct MenuBarLabel: View {
     @ObservedObject var viewModel: UsageViewModel
+    @AppStorage("enterpriseShowPct") private var showPercentage = false
 
     private var pct: Double {
         if viewModel.isEnterprise {
@@ -11,6 +12,18 @@ struct MenuBarLabel: View {
             return (used / limit) * 100
         }
         return viewModel.usage?.fiveHour?.utilization ?? 0
+    }
+
+    private var displayText: String {
+        if viewModel.isEnterprise {
+            if showPercentage {
+                return "\(Int(pct))%"
+            }
+            guard let used = viewModel.usage?.extraUsage?.usedCreditsAmount else { return "--" }
+            if used < 1 { return "$0" }
+            return String(format: "$%.0f", used)
+        }
+        return viewModel.menuBarText
     }
 
     private var ringColor: Color {
@@ -33,7 +46,7 @@ struct MenuBarLabel: View {
             }
             .frame(width: 12, height: 12)
 
-            Text(viewModel.menuBarText)
+            Text(displayText)
                 .font(.system(size: 11, weight: .medium, design: .rounded))
                 .monospacedDigit()
         }

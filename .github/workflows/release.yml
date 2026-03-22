@@ -6,7 +6,7 @@ on:
       - 'v*'
 
 env:
-  APP_NAME: ClaudeUsage
+  APP_NAME: Claude Usage
 
 jobs:
   test:
@@ -106,23 +106,29 @@ jobs:
           fi
           echo "app_path=$APP_PATH" >> $GITHUB_OUTPUT
 
+      - name: Install create-dmg
+        run: brew install create-dmg
+
       - name: Create DMG
         id: dmg
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           APP_PATH="${{ steps.find_app.outputs.app_path }}"
-          DMG_DIR="build/dmg"
           DMG_NAME="${APP_NAME}-${VERSION}.dmg"
 
-          mkdir -p "$DMG_DIR"
-          cp -R "$APP_PATH" "$DMG_DIR/"
-          ln -s /Applications "$DMG_DIR/Applications"
-
-          hdiutil create -volname "${APP_NAME}" \
-            -srcfolder "$DMG_DIR" \
-            -ov \
-            -format UDZO \
-            "build/${DMG_NAME}"
+          create-dmg \
+            --volname "${APP_NAME}" \
+            --volicon "Resources/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png" \
+            --window-pos 200 120 \
+            --window-size 660 400 \
+            --icon-size 100 \
+            --icon "${APP_NAME}.app" 180 200 \
+            --app-drop-link 480 200 \
+            --hide-extension "${APP_NAME}.app" \
+            --no-internet-enable \
+            "build/${DMG_NAME}" \
+            "$APP_PATH" \
+          || test $? -eq 2  # exit code 2 = non-fatal warnings from create-dmg
 
           echo "dmg_path=build/${DMG_NAME}" >> $GITHUB_OUTPUT
           echo "dmg_name=${DMG_NAME}" >> $GITHUB_OUTPUT
