@@ -74,7 +74,7 @@ struct UsageDetailView: View {
 // MARK: - Usage Card (consumer 5h/7d/model)
 
 struct UsageCard: View {
-    let label: String
+    let label: LocalizedStringKey
     let bucket: UsageBucket
     var compact: Bool = false
 
@@ -109,7 +109,7 @@ struct UsageCard: View {
                     .foregroundStyle(.secondary)
                 Spacer()
                 if !resetText.isEmpty {
-                    Text(resetText)
+                    Text(LocalizedStringKey(resetText))
                         .font(.system(size: 9))
                         .foregroundStyle(.tertiary)
                 }

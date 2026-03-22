@@ -12,6 +12,10 @@ struct UsageChartView: View {
         case auto = "Auto"
         case sevenDay = "7d"
         case thirtyDay = "30d"
+
+        var localizedLabel: LocalizedStringKey {
+            LocalizedStringKey(rawValue)
+        }
     }
 
     /// How much history we actually have
@@ -70,7 +74,7 @@ struct UsageChartView: View {
                 if availableRanges.count > 1 {
                     Picker("", selection: $selectedRange) {
                         ForEach(availableRanges, id: \.self) { range in
-                            Text(range.rawValue).tag(range)
+                            Text(range.localizedLabel).tag(range)
                         }
                     }
                     .pickerStyle(.segmented)

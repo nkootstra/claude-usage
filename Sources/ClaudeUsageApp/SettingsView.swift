@@ -24,8 +24,8 @@ struct SettingsView: View {
 
             LaunchAtLogin.Toggle("Launch at login")
 
-            Toggle("Notify at 80%", isOn: $notifyAt80)
-            Toggle("Notify at 95%", isOn: $notifyAt95)
+            Toggle("Notify at 80%%", isOn: $notifyAt80)
+            Toggle("Notify at 95%%", isOn: $notifyAt95)
 
             Divider()
 

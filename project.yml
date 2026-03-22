@@ -3,6 +3,14 @@ options:
   bundleIdPrefix: io.kootstra
   deploymentTarget:
     macOS: "14.0"
+  localizations:
+    - en
+    - nl
+    - de
+    - fr
+    - es
+    - pt-PT
+    - pt-BR
 
 settings:
   base:
@@ -42,7 +50,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.kootstra.claude-usage.core
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: ClaudeUsageCore
+        INFOPLIST_KEY_CFBundleDisplayName: Claude Usage Core
 
   ClaudeUsage:
     type: application
@@ -50,12 +58,14 @@ targets:
     sources:
       - path: Sources/ClaudeUsageApp
       - path: Resources/Assets.xcassets
+      - path: Resources/Localizable.xcstrings
     dependencies:
       - target: ClaudeUsageCore
       - package: LaunchAtLogin-Modern
         product: LaunchAtLogin
     settings:
       base:
+        PRODUCT_NAME: "Claude Usage"
         PRODUCT_BUNDLE_IDENTIFIER: io.kootstra.claude-usage
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_FILE: Resources/Info.plist

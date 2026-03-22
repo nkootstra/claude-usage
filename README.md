@@ -51,7 +51,7 @@ xcodebuild -project ClaudeUsage.xcodeproj \
   build
 ```
 
-The signed app will be at `build/DerivedData/Build/Products/Release/ClaudeUsage.app`.
+The signed app will be at `build/DerivedData/Build/Products/Release/Claude Usage.app`.
 
 ## Authentication
 

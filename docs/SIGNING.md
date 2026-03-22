@@ -124,7 +124,7 @@ xcodebuild -project ClaudeUsage.xcodeproj \
   build
 
 # Verify signature
-codesign -dvv build/DerivedData/Build/Products/Release/ClaudeUsage.app
+codesign -dvv "build/DerivedData/Build/Products/Release/Claude Usage.app"
 ```
 
 ## Troubleshooting
