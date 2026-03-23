@@ -226,6 +226,40 @@ struct KeychainReaderTests {
         #expect(credential.accessToken == "from-good")
     }
 
+    // MARK: - Sign-out flag
+
+    @Test("CredentialStore.isSignedOut defaults to false")
+    func signedOutDefaultFalse() throws {
+        // Clean up any leftover state from prior test runs
+        let key = "io.kootstra.claude-usage.signedOut"
+        UserDefaults.standard.removeObject(forKey: key)
+        #expect(CredentialStore.isSignedOut == false)
+    }
+
+    @Test("CredentialStore.delete sets isSignedOut to true")
+    func deleteSetsFlagTrue() throws {
+        let key = "io.kootstra.claude-usage.signedOut"
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+
+        CredentialStore.delete()
+        #expect(CredentialStore.isSignedOut == true)
+    }
+
+    @Test("CredentialStore.save clears isSignedOut flag")
+    func saveClearsFlag() throws {
+        let key = "io.kootstra.claude-usage.signedOut"
+        // Clean up any existing entry first to avoid "already exists" error
+        CredentialStore.delete()
+        defer {
+            UserDefaults.standard.removeObject(forKey: key)
+            CredentialStore.delete()
+        }
+
+        CredentialStore.isSignedOut = true
+        try CredentialStore.save(accessToken: "test", refreshToken: nil, expiresIn: 3600)
+        #expect(CredentialStore.isSignedOut == false)
+    }
+
     // MARK: - Helper
 
     private func makeOAuthJSON(accessToken: String, expiresAt: Int64) -> Data {

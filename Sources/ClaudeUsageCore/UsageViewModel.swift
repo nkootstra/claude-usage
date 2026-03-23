@@ -71,6 +71,16 @@ public final class UsageViewModel: ObservableObject {
         pollingTask = nil
     }
 
+    public func signOut() {
+        stopPolling()
+        usage = nil
+        error = "No credential"
+        lastUpdated = nil
+        currentBackoff = nil
+        historyPoints = []
+        creditProjection = nil
+    }
+
     public func refresh() async {
         do {
             let result = try await client.fetchUsage()

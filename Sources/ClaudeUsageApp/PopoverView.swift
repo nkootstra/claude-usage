@@ -63,7 +63,7 @@ struct MenuContentView: View {
             }
             .font(.system(size: 12))
 
-            if showSettings {
+            if showSettings && viewModel.usage != nil {
                 Divider()
                 SettingsView(viewModel: viewModel)
             }

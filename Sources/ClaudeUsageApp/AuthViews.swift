@@ -25,7 +25,7 @@ struct SignInPromptView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            Text("No Claude Code credentials found")
+            Text("Sign in to track your Claude usage")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Button("Sign in with Claude") {

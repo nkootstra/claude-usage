@@ -45,10 +45,10 @@
       "localizations" : {
         "de" : { "stringUnit" : { "state" : "translated", "value" : "Zusatzverbrauch" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Uso adicional" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Utilisation suppl\u00e9mentaire" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Surplus" } },
         "nl" : { "stringUnit" : { "state" : "translated", "value" : "Extra verbruik" } },
         "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Uso adicional" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Utiliza\u00e7\u00e3o adicional" } }
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Uso adicional" } }
       }
     },
     "Poll interval" : {
@@ -71,24 +71,24 @@
         "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Iniciar ao entrar" } }
       }
     },
-    "Notify at 80%%" : {
+    "Notify at 80%" : {
       "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bei 80%% benachrichtigen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Avisar al 80%%" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notifier \u00e0 80%%" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Melding bij 80%%" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a 80%%" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a 80%%" } }
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bei 80% benachrichtigen" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Avisar al 80%" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notifier \u00e0 80%" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Melding bij 80%" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a 80%" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a 80%" } }
       }
     },
-    "Notify at 95%%" : {
+    "Notify at 95%" : {
       "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bei 95%% benachrichtigen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Avisar al 95%%" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notifier \u00e0 95%%" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Melding bij 95%%" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a 95%%" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a 95%%" } }
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bei 95% benachrichtigen" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Avisar al 95%" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notifier \u00e0 95%" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Melding bij 95%" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a 95%" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a 95%" } }
       }
     },
     "Sign Out" : {
@@ -111,14 +111,14 @@
         "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Sair" } }
       }
     },
-    "No Claude Code credentials found" : {
+    "Sign in to track your Claude usage" : {
       "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine Claude Code Anmeldedaten gefunden" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se encontraron credenciales de Claude Code" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Identifiants Claude Code introuvables" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Geen Claude Code inloggegevens gevonden" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Credenciais do Claude Code n\u00e3o encontradas" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Credenciais do Claude Code n\u00e3o encontradas" } }
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Melde dich an, um dein Claude-Verbrauch zu sehen" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Inicia sesi\u00f3n para ver tu uso de Claude" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connectez-vous pour suivre votre consommation Claude" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Log in om je Claude-verbruik te zien" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entre para acompanhar seu uso do Claude" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Inicie sess\u00e3o para ver a sua utiliza\u00e7\u00e3o do Claude" } }
       }
     },
     "Sign in with Claude" : {
@@ -235,7 +235,7 @@
       "localizations" : {
         "de" : { "stringUnit" : { "state" : "translated", "value" : "wird zur\u00fcckgesetzt..." } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "reiniciando..." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "r\u00e9initialisation..." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "r\u00e9initialise..." } },
         "nl" : { "stringUnit" : { "state" : "translated", "value" : "wordt gereset..." } },
         "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "reiniciando..." } },
         "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "a reiniciar..." } }
@@ -273,35 +273,35 @@
     },
     "notification.threshold.title" : {
       "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Claude Nutzungswarnung" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Claude-Verbrauchsmeldung" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Claude Usage Alert" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Alerta de uso de Claude" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Alerte d\u2019utilisation Claude" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Claude gebruikswaarschuwing" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Alerte Claude" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Claude-gebruiksmelding" } },
         "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Alerta de uso do Claude" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Alerta de utiliza\u00e7\u00e3o do Claude" } }
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Alerta de uso do Claude" } }
       }
     },
     "notification.threshold.body %lld %lld" : {
       "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "5-Stunden-Nutzung bei %1$lld%% (Schwellenwert: %2$lld%%)" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "5-Stunden-Verbrauch bei %1$lld%% (Grenzwert: %2$lld%%)" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "5-hour usage at %1$lld%% (threshold: %2$lld%%)" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Uso de 5 horas al %1$lld%% (umbral: %2$lld%%)" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Utilisation 5 heures \u00e0 %1$lld%% (seuil : %2$lld%%)" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "5-uursverbruik op %1$lld%% (drempel: %2$lld%%)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Uso de 5 horas al %1$lld%% (l\u00edmite: %2$lld%%)" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Conso. 5h \u00e0 %1$lld%% (seuil : %2$lld%%)" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "5-uursverbruik op %1$lld%% (grens: %2$lld%%)" } },
         "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Uso de 5 horas em %1$lld%% (limite: %2$lld%%)" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Utiliza\u00e7\u00e3o de 5 horas em %1$lld%% (limite: %2$lld%%)" } }
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Uso de 5 horas em %1$lld%% (limite: %2$lld%%)" } }
       }
     },
     "notification.burnRate.title" : {
       "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Claude Nutzungswarnung" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Claude-Verbrauchswarnung" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Claude Usage Warning" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Advertencia de uso de Claude" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Avertissement d\u2019utilisation Claude" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Claude gebruikswaarschuwing" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aviso de uso de Claude" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Avertissement Claude" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Claude-gebruikswaarschuwing" } },
         "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Aviso de uso do Claude" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Aviso de utiliza\u00e7\u00e3o do Claude" } }
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Aviso de uso do Claude" } }
       }
     },
     "notification.burnRate.body %@ %lld" : {
@@ -309,10 +309,10 @@
         "de" : { "stringUnit" : { "state" : "translated", "value" : "Bei aktuellem Tempo wird das %1$@-Limit in ~%2$lld Minuten erreicht" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "At current pace, you'll hit the %1$@ limit in ~%2$lld minutes" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Al ritmo actual, alcanzar\u00e1s el l\u00edmite de %1$@ en ~%2$lld minutos" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Au rythme actuel, vous atteindrez la limite %1$@ dans ~%2$lld minutes" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Au rythme actuel, la limite %1$@ sera atteinte dans ~%2$lld min" } },
         "nl" : { "stringUnit" : { "state" : "translated", "value" : "Op dit tempo bereik je de %1$@-limiet in ~%2$lld minuten" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "No ritmo atual, voc\u00ea atingir\u00e1 o limite de %1$@ em ~%2$lld minutos" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ao ritmo atual, atingir\u00e1 o limite de %1$@ em ~%2$lld minutos" } }
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "No ritmo atual, o limite de %1$@ ser\u00e1 atingido em ~%2$lld minutos" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ao ritmo atual, o limite de %1$@ ser\u00e1 atingido em ~%2$lld minutos" } }
       }
     },
     "of %@ limit" : {
