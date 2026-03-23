@@ -7,7 +7,10 @@ struct ClaudeUsageApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            MenuContentView(viewModel: appDelegate.viewModel)
+            MenuContentView(
+                viewModel: appDelegate.viewModel,
+                widgetController: appDelegate.widgetController
+            )
         } label: {
             MenuBarLabel(viewModel: appDelegate.viewModel)
         }
@@ -27,6 +30,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         notificationService: notificationService,
         historyStore: historyStore
     )
+
+    lazy var widgetController = FloatingWidgetController(viewModel: viewModel)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApplication.shared.setActivationPolicy(.accessory)

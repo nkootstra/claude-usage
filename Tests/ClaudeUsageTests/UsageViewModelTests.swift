@@ -266,7 +266,7 @@ struct UsageViewModelTests {
         #expect(vm.usage?.sevenDay?.utilization == 50.0)
     }
 
-    @Test("Backoff caps at 3600 seconds")
+    @Test("Backoff caps at 120 seconds")
     @MainActor
     func backoffCap() async throws {
         let mockSession = MockURLSession { _ in
@@ -278,7 +278,7 @@ struct UsageViewModelTests {
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
             credentialProvider: { OAuthCredential.mock(accessToken: "token") },
-            pollingInterval: 300
+            pollingInterval: 30
         )
 
         // Trigger multiple failures to escalate backoff
@@ -286,8 +286,8 @@ struct UsageViewModelTests {
             await vm.refresh()
         }
 
-        // Should never exceed 3600
-        #expect((vm.currentBackoff ?? 0) <= 3600)
+        // Should never exceed 120
+        #expect((vm.currentBackoff ?? 0) <= 120)
         #expect((vm.currentBackoff ?? 0) > 0)
     }
 

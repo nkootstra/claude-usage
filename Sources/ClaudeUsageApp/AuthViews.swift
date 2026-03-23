@@ -13,10 +13,18 @@ final class AuthFlowState: ObservableObject {
         let state = PKCEChallenge.generate().verifier
         self.pkce = pkce
         self.state = state
+        self.error = nil
 
         let url = OAuthFlow.authorizationURL(challenge: pkce.challenge, state: state)
         NSWorkspace.shared.open(url)
         isAwaitingCode = true
+    }
+
+    func reset() {
+        isAwaitingCode = false
+        error = nil
+        pkce = nil
+        state = nil
     }
 }
 
@@ -24,10 +32,16 @@ struct SignInPromptView: View {
     @ObservedObject var authFlow: AuthFlowState
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 12) {
+            Image(systemName: "person.crop.circle.badge.questionmark")
+                .font(.system(size: 28))
+                .foregroundStyle(.secondary)
+
             Text("Sign in to track your Claude usage")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
             Button("Sign in with Claude") {
                 authFlow.startFlow()
             }
@@ -46,13 +60,37 @@ struct OAuthCodeEntryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Paste the authorization code:")
-                .font(.caption)
-                .foregroundStyle(.secondary)
             HStack {
+                Text("Paste the authorization code:")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button {
+                    authFlow.reset()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.tertiary)
+                }
+                .buttonStyle(.borderless)
+                .help("Cancel")
+            }
+
+            HStack(spacing: 6) {
                 TextField("Code", text: $codeText)
                     .textFieldStyle(.roundedBorder)
                     .font(.caption)
+
+                Button {
+                    if let clipboard = NSPasteboard.general.string(forType: .string) {
+                        codeText = clipboard.trimmingCharacters(in: .whitespacesAndNewlines)
+                    }
+                } label: {
+                    Image(systemName: "doc.on.clipboard")
+                }
+                .buttonStyle(.borderless)
+                .foregroundStyle(.secondary)
+                .help("Paste from clipboard")
+
                 Button("Submit") {
                     isExchanging = true
                     Task {
@@ -63,23 +101,28 @@ struct OAuthCodeEntryView: View {
                 .disabled(codeText.isEmpty || isExchanging)
                 .controlSize(.small)
             }
+
             if let error = authFlow.error {
-                Text(error)
-                    .font(.caption2)
-                    .foregroundStyle(.red)
+                HStack(spacing: 4) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.caption2)
+                    Text(error)
+                        .font(.caption2)
+                }
+                .foregroundStyle(.red)
             }
         }
     }
 
     private func exchangeCode() async {
         guard let pkce = authFlow.pkce, let state = authFlow.state else {
-            authFlow.error = "No pending flow"
+            authFlow.error = "No pending flow. Try signing in again."
             return
         }
 
         let (code, returnedState) = OAuthFlow.parseCallback(codeText)
         if let returnedState, returnedState != state {
-            authFlow.error = "State mismatch — try again"
+            authFlow.error = "State mismatch. Try signing in again."
             return
         }
 
@@ -91,13 +134,100 @@ struct OAuthCodeEntryView: View {
                 refreshToken: token.refreshToken,
                 expiresIn: token.expiresIn
             )
-            authFlow.isAwaitingCode = false
-            authFlow.error = nil
-            authFlow.pkce = nil
-            authFlow.state = nil
+            authFlow.reset()
             viewModel.startPolling()
         } catch {
-            authFlow.error = "Exchange failed: \(error.localizedDescription)"
+            authFlow.error = "Exchange failed. Check the code and try again."
+        }
+    }
+}
+
+/// Structured error view that maps UsageError to actionable UI
+struct UsageErrorView: View {
+    let error: UsageError
+    @ObservedObject var authFlow: AuthFlowState
+    var onRetry: (() -> Void)?
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: iconName)
+                .font(.system(size: 24))
+                .foregroundStyle(iconColor)
+
+            Text(title)
+                .font(.caption)
+                .fontWeight(.medium)
+
+            Text(subtitle)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            if let action = actionButton {
+                action
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var iconName: String {
+        switch error {
+        case .noCredential, .unauthorized: return "person.crop.circle.badge.xmark"
+        case .rateLimited: return "clock.badge.exclamationmark"
+        case .networkError: return "wifi.exclamationmark"
+        case .unknown: return "exclamationmark.triangle"
+        }
+    }
+
+    private var iconColor: Color {
+        switch error {
+        case .noCredential, .unauthorized: return .orange
+        case .rateLimited: return .yellow
+        case .networkError, .unknown: return .red
+        }
+    }
+
+    private var title: String {
+        switch error {
+        case .noCredential: return "Not signed in"
+        case .unauthorized: return "Session expired"
+        case .rateLimited: return "Rate limited"
+        case .networkError: return "Connection issue"
+        case .unknown: return "Something went wrong"
+        }
+    }
+
+    private var subtitle: String {
+        switch error {
+        case .noCredential:
+            return "Sign in to see your Claude usage."
+        case .unauthorized:
+            return "Your session expired. Sign in again."
+        case .rateLimited(let retryIn):
+            return "Too many requests. Retrying in \(Int(retryIn))s."
+        case .networkError(let msg):
+            return "Can't reach Claude. \(msg)"
+        case .unknown(let msg):
+            return msg
+        }
+    }
+
+    @ViewBuilder
+    private var actionButton: (some View)? {
+        switch error {
+        case .noCredential, .unauthorized:
+            Button("Sign in with Claude") {
+                authFlow.startFlow()
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+        case .rateLimited, .networkError, .unknown:
+            if let onRetry {
+                Button("Retry Now") {
+                    onRetry()
+                }
+                .controlSize(.small)
+            }
         }
     }
 }

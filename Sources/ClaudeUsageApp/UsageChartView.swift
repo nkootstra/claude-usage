@@ -188,10 +188,10 @@ struct UsageChartView: View {
                             Label("7-Day", systemImage: "circle.fill")
                                 .foregroundStyle(Color(.systemOrange))
                         }
-                        .font(.system(size: 9))
+                        .font(.system(size: 8))
                     }
                 }
-                .frame(height: 120)
+                .frame(height: 130)
             } else {
                 Text("Not enough data yet — check back after a few polls")
                     .font(.caption2)

@@ -1,5 +1,4 @@
 import Foundation
-import Security
 import KeychainAccess
 
 public enum KeychainReaderError: Error, Sendable {
@@ -63,9 +62,9 @@ public struct OAuthCredential: Sendable {
         return try fromCredentialSources(filePaths: filePaths)
     }
 
-    /// Read credential from file paths (tried in order), then Claude Code keychain as last resort.
+    /// Read credential from file paths (tried in order). If none found, throws noKeychainEntry
+    /// which triggers the sign-in UI.
     public static func fromCredentialSources(filePaths: [URL]) throws -> OAuthCredential {
-        // Try file-based credential sources (no keychain prompt)
         for path in filePaths {
             if let data = try? Data(contentsOf: path) {
                 if let credential = try? fromKeychainData(data) {
@@ -73,39 +72,17 @@ public struct OAuthCredential: Sendable {
                 }
             }
         }
-        // 3. Fall back to Claude Code keychain entry (may trigger macOS keychain prompt once).
-        //    Skip if the user explicitly signed out — avoids an unwanted prompt on next launch.
-        //    On success, cache in our own keychain so future reads never need to prompt again.
-        if !CredentialStore.isSignedOut, let data = readClaudeCodeKeychain() {
-            let credential = try fromKeychainData(data)
-            try? CredentialStore.keychain.set(data, key: "credentials")
-            CredentialStore.isSignedOut = false
-            return credential
-        }
         throw KeychainReaderError.noKeychainEntry
-    }
-
-    /// Raw Security API for reading Claude Code's entry (foreign keychain item with dynamic account name)
-    private static func readClaudeCodeKeychain() -> Data? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: "Claude Code-credentials",
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-            // Fail silently instead of showing a dialog if the item needs user interaction.
-            // If the user previously granted "Always Allow", this returns the data without prompting.
-            kSecUseAuthenticationUI as String: kSecUseAuthenticationUISkip,
-        ]
-        var result: CFTypeRef?
-        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess else { return nil }
-        return result as? Data
     }
 }
 
 // MARK: - Credential Store (our own keychain entry via KeychainAccess)
 
 public enum CredentialStore {
-    nonisolated(unsafe) static let keychain = Keychain(service: "io.kootstra.claude-usage.credentials")
+    nonisolated(unsafe) static let keychain = Keychain(
+        service: "io.kootstra.claude-usage.credentials",
+        accessGroup: "WQ8V5KRNUG.io.kootstra.claude-usage"
+    )
 
     private static let signedOutKey = "io.kootstra.claude-usage.signedOut"
 

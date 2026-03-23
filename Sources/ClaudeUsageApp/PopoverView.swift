@@ -4,12 +4,13 @@ import UniformTypeIdentifiers
 
 struct MenuContentView: View {
     @ObservedObject var viewModel: UsageViewModel
+    var widgetController: FloatingWidgetController?
     @StateObject private var authFlow = AuthFlowState()
     @State private var exportError: String?
     @State private var showSettings = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             if let usage = viewModel.usage {
                 UsageDetailView(usage: usage, creditProjection: viewModel.creditProjection)
 
@@ -18,12 +19,10 @@ struct MenuContentView: View {
                 }
             } else if authFlow.isAwaitingCode {
                 OAuthCodeEntryView(authFlow: authFlow, viewModel: viewModel)
-            } else if viewModel.error == "No credential" || viewModel.error?.contains("Unauthorized") == true {
-                SignInPromptView(authFlow: authFlow)
             } else if let error = viewModel.error {
-                Label(error, systemImage: "exclamationmark.triangle")
-                    .foregroundStyle(.secondary)
-                    .font(.caption)
+                UsageErrorView(error: error, authFlow: authFlow) {
+                    Task { await viewModel.refresh() }
+                }
             } else {
                 ProgressView("Loading...")
             }
@@ -72,6 +71,17 @@ struct MenuContentView: View {
                     .buttonStyle(.borderless)
                     .foregroundStyle(.secondary)
                     .help("Refresh")
+
+                    if let widgetController {
+                        Button {
+                            widgetController.toggle()
+                        } label: {
+                            Image(systemName: widgetController.isVisible ? "pin.slash" : "pin")
+                        }
+                        .buttonStyle(.borderless)
+                        .foregroundStyle(widgetController.isVisible ? .primary : .secondary)
+                        .help(widgetController.isVisible ? "Unpin widget" : "Pin widget")
+                    }
                 }
                 Button {
                     showSettings.toggle()
@@ -89,7 +99,7 @@ struct MenuContentView: View {
                 SettingsView(viewModel: viewModel)
             }
         }
-        .padding(14)
+        .padding(12)
         .frame(width: 300)
     }
 
