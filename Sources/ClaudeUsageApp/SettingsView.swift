@@ -38,6 +38,12 @@ struct SettingsView: View {
 
                 Spacer()
 
+                Text("v\(Bundle.main.shortVersionString)")
+                    .foregroundStyle(.tertiary)
+                    .font(.caption2)
+
+                Spacer()
+
                 Button("Quit") {
                     NSApplication.shared.terminate(nil)
                 }

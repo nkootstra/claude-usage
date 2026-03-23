@@ -10,12 +10,15 @@ public final class UsageViewModel: ObservableObject {
     @Published public private(set) var currentBackoff: TimeInterval?
     @Published public var historyPoints: [UsageDataPoint] = []
     @Published public var creditProjection: CreditBurnProjection?
+    @Published public var availableUpdate: UpdateInfo?
 
     private let client: TokenRefreshingClient
     private var pollingInterval: TimeInterval
     private var pollingTask: Task<Void, Never>?
+    private var updateTask: Task<Void, Never>?
     private let notificationService: NotificationService?
     private let historyStore: UsageHistoryStore?
+    private let updateChecker: UpdateChecker
 
     public var isEnterprise: Bool {
         usage?.fiveHour == nil && usage?.sevenDay == nil
@@ -38,12 +41,14 @@ public final class UsageViewModel: ObservableObject {
         credentialProvider: @escaping CredentialProvider,
         pollingInterval: TimeInterval = 300,
         notificationService: NotificationService? = nil,
-        historyStore: UsageHistoryStore? = nil
+        historyStore: UsageHistoryStore? = nil,
+        updateChecker: UpdateChecker = UpdateChecker()
     ) {
         self.client = TokenRefreshingClient(apiClient: apiClient, credentialProvider: credentialProvider)
         self.pollingInterval = pollingInterval
         self.notificationService = notificationService
         self.historyStore = historyStore
+        self.updateChecker = updateChecker
     }
 
     public func startPolling() {
@@ -57,6 +62,38 @@ public final class UsageViewModel: ObservableObject {
                 await refresh()
             }
         }
+        startUpdateChecking()
+    }
+
+    private static let updateCheckInterval: TimeInterval = 6 * 3600 // 6 hours
+    private static let dismissedVersionKey = "claude-usage.dismissedUpdateVersion"
+
+    private func startUpdateChecking() {
+        updateTask?.cancel()
+        updateTask = Task {
+            await checkForUpdate()
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(Self.updateCheckInterval))
+                guard !Task.isCancelled else { break }
+                await checkForUpdate()
+            }
+        }
+    }
+
+    private func checkForUpdate() async {
+        let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+        guard let update = await updateChecker.check(currentVersion: currentVersion) else { return }
+        let dismissed = UserDefaults.standard.string(forKey: Self.dismissedVersionKey)
+        if update.version != dismissed {
+            availableUpdate = update
+        }
+    }
+
+    public func dismissUpdate() {
+        if let version = availableUpdate?.version {
+            UserDefaults.standard.set(version, forKey: Self.dismissedVersionKey)
+        }
+        availableUpdate = nil
     }
 
     public func updatePollingInterval(_ seconds: TimeInterval) {
@@ -69,6 +106,8 @@ public final class UsageViewModel: ObservableObject {
     public func stopPolling() {
         pollingTask?.cancel()
         pollingTask = nil
+        updateTask?.cancel()
+        updateTask = nil
     }
 
     public func signOut() {

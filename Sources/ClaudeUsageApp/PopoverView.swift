@@ -28,6 +28,27 @@ struct MenuContentView: View {
                 ProgressView("Loading...")
             }
 
+            // Update banner
+            if let update = viewModel.availableUpdate {
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(.orange)
+                        .frame(width: 6, height: 6)
+                    Link("v\(update.version) available", destination: update.releaseURL)
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                    Spacer()
+                    Button {
+                        viewModel.dismissUpdate()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 8, weight: .bold))
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.tertiary)
+                }
+            }
+
             // Footer
             HStack(spacing: 12) {
                 if let lastUpdated = viewModel.lastUpdated {
