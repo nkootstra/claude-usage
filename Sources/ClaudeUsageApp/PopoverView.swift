@@ -18,7 +18,7 @@ struct MenuContentView: View {
                 }
             } else if authFlow.isAwaitingCode {
                 OAuthCodeEntryView(authFlow: authFlow, viewModel: viewModel)
-            } else if viewModel.error == "No credential" {
+            } else if viewModel.error == "No credential" || viewModel.error?.contains("Unauthorized") == true {
                 SignInPromptView(authFlow: authFlow)
             } else if let error = viewModel.error {
                 Label(error, systemImage: "exclamationmark.triangle")
@@ -26,6 +26,27 @@ struct MenuContentView: View {
                     .font(.caption)
             } else {
                 ProgressView("Loading...")
+            }
+
+            // Update banner
+            if let update = viewModel.availableUpdate {
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(.orange)
+                        .frame(width: 6, height: 6)
+                    Link("v\(update.version) available", destination: update.releaseURL)
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                    Spacer()
+                    Button {
+                        viewModel.dismissUpdate()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 8, weight: .bold))
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.tertiary)
+                }
             }
 
             // Footer
@@ -63,7 +84,7 @@ struct MenuContentView: View {
             }
             .font(.system(size: 12))
 
-            if showSettings && viewModel.usage != nil {
+            if showSettings {
                 Divider()
                 SettingsView(viewModel: viewModel)
             }
