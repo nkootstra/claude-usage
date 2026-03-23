@@ -12,29 +12,33 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Picker("Poll interval", selection: $pollingMinutes) {
-                ForEach(pollingOptions, id: \.self) { min in
-                    Text("\(min)m").tag(min)
+            if viewModel.usage != nil {
+                Picker("Poll interval", selection: $pollingMinutes) {
+                    ForEach(pollingOptions, id: \.self) { min in
+                        Text("\(min)m").tag(min)
+                    }
                 }
+                .pickerStyle(.segmented)
+                .onChange(of: pollingMinutes) { _, newValue in
+                    viewModel.updatePollingInterval(TimeInterval(newValue * 60))
+                }
+
+                LaunchAtLogin.Toggle("Launch at login")
+
+                Toggle("Notify at 80%", isOn: $notifyAt80)
+                Toggle("Notify at 95%", isOn: $notifyAt95)
+
+                Divider()
             }
-            .pickerStyle(.segmented)
-            .onChange(of: pollingMinutes) { _, newValue in
-                viewModel.updatePollingInterval(TimeInterval(newValue * 60))
-            }
-
-            LaunchAtLogin.Toggle("Launch at login")
-
-            Toggle("Notify at 80%", isOn: $notifyAt80)
-            Toggle("Notify at 95%", isOn: $notifyAt95)
-
-            Divider()
 
             HStack {
-                Button("Sign Out") {
-                    CredentialStore.delete()
-                    viewModel.signOut()
+                if viewModel.usage != nil {
+                    Button("Sign Out") {
+                        CredentialStore.delete()
+                        viewModel.signOut()
+                    }
+                    .foregroundStyle(.red)
                 }
-                .foregroundStyle(.red)
 
                 Spacer()
 

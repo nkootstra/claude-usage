@@ -18,7 +18,7 @@ struct MenuContentView: View {
                 }
             } else if authFlow.isAwaitingCode {
                 OAuthCodeEntryView(authFlow: authFlow, viewModel: viewModel)
-            } else if viewModel.error == "No credential" {
+            } else if viewModel.error == "No credential" || viewModel.error?.contains("Unauthorized") == true {
                 SignInPromptView(authFlow: authFlow)
             } else if let error = viewModel.error {
                 Label(error, systemImage: "exclamationmark.triangle")
@@ -84,7 +84,7 @@ struct MenuContentView: View {
             }
             .font(.system(size: 12))
 
-            if showSettings && viewModel.usage != nil {
+            if showSettings {
                 Divider()
                 SettingsView(viewModel: viewModel)
             }
