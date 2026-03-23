@@ -46,10 +46,27 @@ public struct OAuthCredential: Sendable {
         )
     }
 
-    /// Read credential from macOS Keychain where Claude Code stores it.
-    /// Falls back to ClaudeUsage own keychain entry if Claude Code entry not found.
+    /// Read credential from file-based sources first, then keychain as backup.
     public static func fromKeychain() throws -> OAuthCredential {
-        // Claude Code stores with a dynamic account name — use raw query to find any match
+        let home = FileManager.default.homeDirectoryForCurrentUser
+        let filePaths = [
+            home.appendingPathComponent(".claude/.credentials.json"),
+            home.appendingPathComponent(".claude/credentials.json"),
+        ]
+        return try fromCredentialSources(filePaths: filePaths)
+    }
+
+    /// Read credential from the given file paths (tried in order), then keychain as backup.
+    public static func fromCredentialSources(filePaths: [URL]) throws -> OAuthCredential {
+        // Try file-based credential sources first (no keychain prompt)
+        for path in filePaths {
+            if let data = try? Data(contentsOf: path) {
+                if let credential = try? fromKeychainData(data) {
+                    return credential
+                }
+            }
+        }
+        // Fall back to Claude Code keychain entry
         if let data = readClaudeCodeKeychain() {
             return try fromKeychainData(data)
         }
