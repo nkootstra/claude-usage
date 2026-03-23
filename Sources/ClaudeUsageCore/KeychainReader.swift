@@ -46,7 +46,7 @@ public struct OAuthCredential: Sendable {
         )
     }
 
-    /// Read credential from file-based sources first, then keychain as backup.
+    /// Read credential: own keychain → file-based → Claude Code keychain (last resort).
     public static func fromKeychain() throws -> OAuthCredential {
         let home = FileManager.default.homeDirectoryForCurrentUser
         let filePaths = [
@@ -56,9 +56,15 @@ public struct OAuthCredential: Sendable {
         return try fromCredentialSources(filePaths: filePaths)
     }
 
-    /// Read credential from the given file paths (tried in order), then keychain as backup.
+    /// Read credential from our own keychain first (no prompt), then file-based, then Claude Code keychain last (may prompt).
     public static func fromCredentialSources(filePaths: [URL]) throws -> OAuthCredential {
-        // Try file-based credential sources first (no keychain prompt)
+        // 1. Try our own stored credential first (never triggers a keychain prompt)
+        if let data = try? CredentialStore.keychain.getData("credentials") {
+            if let credential = try? fromKeychainData(data) {
+                return credential
+            }
+        }
+        // 2. Try file-based credential sources (works on Linux, older Claude Code versions)
         for path in filePaths {
             if let data = try? Data(contentsOf: path) {
                 if let credential = try? fromKeychainData(data) {
@@ -66,13 +72,14 @@ public struct OAuthCredential: Sendable {
                 }
             }
         }
-        // Fall back to Claude Code keychain entry
-        if let data = readClaudeCodeKeychain() {
-            return try fromKeychainData(data)
-        }
-        // Fall back to our own stored credential
-        if let data = try? CredentialStore.keychain.getData("credentials") {
-            return try fromKeychainData(data)
+        // 3. Fall back to Claude Code keychain entry (may trigger macOS keychain prompt once).
+        //    Skip if the user explicitly signed out — avoids an unwanted prompt on next launch.
+        //    On success, cache in our own keychain so future reads never need to prompt again.
+        if !CredentialStore.isSignedOut, let data = readClaudeCodeKeychain() {
+            let credential = try fromKeychainData(data)
+            try? CredentialStore.keychain.set(data, key: "credentials")
+            CredentialStore.isSignedOut = false
+            return credential
         }
         throw KeychainReaderError.noKeychainEntry
     }
@@ -84,6 +91,9 @@ public struct OAuthCredential: Sendable {
             kSecAttrService as String: "Claude Code-credentials",
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne,
+            // Fail silently instead of showing a dialog if the item needs user interaction.
+            // If the user previously granted "Always Allow", this returns the data without prompting.
+            kSecUseAuthenticationUI as String: kSecUseAuthenticationUISkip,
         ]
         var result: CFTypeRef?
         guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess else { return nil }
@@ -95,6 +105,14 @@ public struct OAuthCredential: Sendable {
 
 public enum CredentialStore {
     nonisolated(unsafe) static let keychain = Keychain(service: "io.kootstra.claude-usage.credentials")
+
+    private static let signedOutKey = "io.kootstra.claude-usage.signedOut"
+
+    /// Whether the user explicitly signed out (suppresses Claude Code keychain reads).
+    public static var isSignedOut: Bool {
+        get { UserDefaults.standard.bool(forKey: signedOutKey) }
+        set { UserDefaults.standard.set(newValue, forKey: signedOutKey) }
+    }
 
     public static func save(accessToken: String, refreshToken: String?, expiresIn: Int?) throws {
         let expiresAt = expiresIn.map { Int64(Date().timeIntervalSince1970 * 1000) + Int64($0) * 1000 }
@@ -109,9 +127,12 @@ public enum CredentialStore {
 
         let data = try JSONSerialization.data(withJSONObject: json)
         try keychain.set(data, key: "credentials")
+        // Clear signed-out flag so the app uses this credential
+        isSignedOut = false
     }
 
     public static func delete() {
         try? keychain.remove("credentials")
+        isSignedOut = true
     }
 }

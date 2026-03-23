@@ -235,4 +235,116 @@ struct TokenRefreshingClientTests {
             }
         }
     }
+
+    @Test("Refreshes own token via refresh endpoint when expired and refresh token exists")
+    func refreshesOwnTokenOnExpiry() async throws {
+        let expiredMs = Int64(Date().timeIntervalSince1970 * 1000) - 1000
+        let apiCounter = FetchCounter()
+
+        let mockSession = MockURLSession { request in
+            apiCounter.increment()
+            let urlPath = request.url?.path ?? ""
+
+            // Token refresh endpoint
+            if urlPath.contains("/oauth/token") {
+                let refreshResponse = """
+                {
+                    "access_token": "refreshed-token",
+                    "refresh_token": "new-refresh",
+                    "expires_in": 3600,
+                    "token_type": "Bearer"
+                }
+                """.data(using: .utf8)!
+                return (refreshResponse, HTTPURLResponse(
+                    url: request.url!, statusCode: 200,
+                    httpVersion: nil, headerFields: nil)!)
+            }
+
+            // Usage endpoint
+            return (self.fixture, HTTPURLResponse(
+                url: request.url!, statusCode: 200,
+                httpVersion: nil, headerFields: nil)!)
+        }
+
+        let credentialCounter = FetchCounter()
+
+        let client = TokenRefreshingClient(
+            apiClient: AnthropicAPIClient(session: mockSession),
+            credentialProvider: {
+                credentialCounter.increment()
+                if credentialCounter.value <= 1 {
+                    // First call: return expired token with refresh token
+                    return OAuthCredential.mock(
+                        accessToken: "expired",
+                        refreshToken: "my-refresh-token",
+                        expiresAt: expiredMs
+                    )
+                }
+                // After refresh: CredentialStore.save was called, return the refreshed token
+                return OAuthCredential.mock(accessToken: "refreshed-token")
+            }
+        )
+
+        let result = try await client.fetchUsage()
+        // Should have called: 1) token refresh endpoint, 2) usage endpoint
+        #expect(apiCounter.value == 2)
+        #expect(result.usage.fiveHour?.utilization == 42.0)
+    }
+
+    @Test("On 401, tries token refresh before re-reading credential provider")
+    func refreshesOnUnauthorized() async throws {
+        let apiCounter = FetchCounter()
+
+        let mockSession = MockURLSession { request in
+            apiCounter.increment()
+            let urlPath = request.url?.path ?? ""
+
+            // Token refresh endpoint
+            if urlPath.contains("/oauth/token") {
+                let refreshResponse = """
+                {
+                    "access_token": "refreshed-token",
+                    "refresh_token": "new-refresh",
+                    "expires_in": 3600,
+                    "token_type": "Bearer"
+                }
+                """.data(using: .utf8)!
+                return (refreshResponse, HTTPURLResponse(
+                    url: request.url!, statusCode: 200,
+                    httpVersion: nil, headerFields: nil)!)
+            }
+
+            // Usage endpoint — first call returns 401, subsequent calls succeed
+            let auth = request.value(forHTTPHeaderField: "Authorization") ?? ""
+            if auth.contains("stale") {
+                return (Data(), HTTPURLResponse(
+                    url: request.url!, statusCode: 401,
+                    httpVersion: nil, headerFields: nil)!)
+            }
+            return (self.fixture, HTTPURLResponse(
+                url: request.url!, statusCode: 200,
+                httpVersion: nil, headerFields: nil)!)
+        }
+
+        let credentialCounter = FetchCounter()
+
+        let client = TokenRefreshingClient(
+            apiClient: AnthropicAPIClient(session: mockSession),
+            credentialProvider: {
+                credentialCounter.increment()
+                if credentialCounter.value <= 1 {
+                    return OAuthCredential.mock(
+                        accessToken: "stale",
+                        refreshToken: "my-refresh-token"
+                    )
+                }
+                return OAuthCredential.mock(accessToken: "refreshed-token")
+            }
+        )
+
+        let result = try await client.fetchUsage()
+        // Should have called: 1) usage (401), 2) token refresh, 3) usage (200)
+        #expect(apiCounter.value == 3)
+        #expect(result.usage.fiveHour?.utilization == 42.0)
+    }
 }

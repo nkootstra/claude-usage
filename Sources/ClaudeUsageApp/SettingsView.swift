@@ -32,7 +32,7 @@ struct SettingsView: View {
             HStack {
                 Button("Sign Out") {
                     CredentialStore.delete()
-                    NSApplication.shared.terminate(nil)
+                    viewModel.signOut()
                 }
                 .foregroundStyle(.red)
 
