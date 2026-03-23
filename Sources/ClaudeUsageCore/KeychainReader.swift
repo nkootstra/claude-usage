@@ -48,6 +48,13 @@ public struct OAuthCredential: Sendable {
 
     /// Read credential: own keychain → file-based → Claude Code keychain (last resort).
     public static func fromKeychain() throws -> OAuthCredential {
+        // 1. Try our own stored credential first (never triggers a keychain prompt)
+        if let data = try? CredentialStore.keychain.getData("credentials") {
+            if let credential = try? fromKeychainData(data) {
+                return credential
+            }
+        }
+
         let home = FileManager.default.homeDirectoryForCurrentUser
         let filePaths = [
             home.appendingPathComponent(".claude/.credentials.json"),
@@ -56,15 +63,9 @@ public struct OAuthCredential: Sendable {
         return try fromCredentialSources(filePaths: filePaths)
     }
 
-    /// Read credential from our own keychain first (no prompt), then file-based, then Claude Code keychain last (may prompt).
+    /// Read credential from file paths (tried in order), then Claude Code keychain as last resort.
     public static func fromCredentialSources(filePaths: [URL]) throws -> OAuthCredential {
-        // 1. Try our own stored credential first (never triggers a keychain prompt)
-        if let data = try? CredentialStore.keychain.getData("credentials") {
-            if let credential = try? fromKeychainData(data) {
-                return credential
-            }
-        }
-        // 2. Try file-based credential sources (works on Linux, older Claude Code versions)
+        // Try file-based credential sources (no keychain prompt)
         for path in filePaths {
             if let data = try? Data(contentsOf: path) {
                 if let credential = try? fromKeychainData(data) {

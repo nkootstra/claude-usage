@@ -248,6 +248,8 @@ struct KeychainReaderTests {
     @Test("CredentialStore.save clears isSignedOut flag")
     func saveClearsFlag() throws {
         let key = "io.kootstra.claude-usage.signedOut"
+        // Clean up any existing entry first to avoid "already exists" error
+        CredentialStore.delete()
         defer {
             UserDefaults.standard.removeObject(forKey: key)
             CredentialStore.delete()
