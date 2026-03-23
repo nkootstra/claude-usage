@@ -15,8 +15,9 @@ A macOS menubar app that tracks your Claude (Code) usage in real time.
 - **Burn rate alerts** — notification when projected to hit limit within 60 minutes
 - **Threshold notifications** — configurable alerts at 80% and 95% usage
 - **CSV export** — export full history for analysis
-- **Zero-setup auth** — reads Claude Code's OAuth token from Keychain automatically
-- **Browser sign-in** — OAuth PKCE fallback for users without Claude Code
+- **OAuth sign-in** — authenticate via your browser with your Claude account
+- **Claude Code auto-detect** — picks up credentials from Claude Code if installed (file-based, no keychain prompts)
+- **Token refresh** — keeps your session alive without re-authenticating
 - **Auto-polling** — configurable interval (1/5/15/30 min) with exponential backoff
 - **Sleep/wake aware** — pauses polling on sleep, resumes on wake
 - **Multi-language** — English, Dutch, German, French, Spanish, Portuguese (BR & PT)
@@ -56,9 +57,14 @@ The signed app will be at `build/DerivedData/Build/Products/Release/Claude Usage
 
 ## Authentication
 
-The app reads your OAuth token automatically if you have [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and logged in. No setup needed.
+On first launch, click **Sign in with Claude** to authenticate via your browser. The app stores your credentials locally and refreshes tokens automatically.
 
-If Claude Code is not installed, click "Sign in with Claude" in the popover to authenticate via your browser.
+If you have [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed, the app can also pick up your existing session from `~/.claude/.credentials.json` — no sign-in needed.
+
+Credential resolution order:
+1. Own cached credential (from a previous sign-in)
+2. Claude Code credential file (`~/.claude/.credentials.json`)
+3. Claude Code keychain (silent, no prompts)
 
 ## How it works
 
@@ -86,7 +92,7 @@ Click the gear icon in the popover to access settings:
 ## Requirements
 
 - macOS 14 (Sonoma) or later
-- Claude Code installed (for automatic auth), or a Claude account for browser sign-in
+- A Claude account (Pro, Max, or Enterprise)
 
 ## Development
 
@@ -94,7 +100,7 @@ Click the gear icon in the popover to access settings:
 # Run tests
 swift test
 
-# Run the app (unsigned, will prompt for keychain access)
+# Run the app (unsigned)
 swift run ClaudeUsageApp
 
 # Build signed app locally
