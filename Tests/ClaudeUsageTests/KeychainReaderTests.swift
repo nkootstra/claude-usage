@@ -159,6 +159,73 @@ struct KeychainReaderTests {
         #expect(credential.accessToken == "token")
     }
 
+    // MARK: - File-based credential reading
+
+    @Test("Reads credential from file when it exists")
+    func readFromFile() throws {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("claude-cred-test-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let file = dir.appendingPathComponent(".credentials.json")
+        try keychainFixture.write(to: file)
+
+        let credential = try OAuthCredential.fromCredentialSources(filePaths: [file])
+        #expect(credential.accessToken == "sk-ant-oat01-test-token")
+    }
+
+    @Test("Tries first file path before second")
+    func fileOrderPriority() throws {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("claude-cred-order-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let first = dir.appendingPathComponent("first.json")
+        let second = dir.appendingPathComponent("second.json")
+
+        let firstJSON = makeOAuthJSON(accessToken: "from-first", expiresAt: 9_999_999_999_999)
+        let secondJSON = makeOAuthJSON(accessToken: "from-second", expiresAt: 9_999_999_999_999)
+        try firstJSON.write(to: first)
+        try secondJSON.write(to: second)
+
+        let credential = try OAuthCredential.fromCredentialSources(filePaths: [first, second])
+        #expect(credential.accessToken == "from-first")
+    }
+
+    @Test("Skips missing first file and reads second")
+    func fallsToSecondFile() throws {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("claude-cred-fallback-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let missing = dir.appendingPathComponent("missing.json")
+        let present = dir.appendingPathComponent("present.json")
+        let json = makeOAuthJSON(accessToken: "from-fallback", expiresAt: 9_999_999_999_999)
+        try json.write(to: present)
+
+        let credential = try OAuthCredential.fromCredentialSources(filePaths: [missing, present])
+        #expect(credential.accessToken == "from-fallback")
+    }
+
+    @Test("Skips malformed file and falls through to next source")
+    func skipsMalformedFile() throws {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("claude-cred-bad-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let bad = dir.appendingPathComponent("bad.json")
+        let good = dir.appendingPathComponent("good.json")
+        try "not valid json".data(using: .utf8)!.write(to: bad)
+        try makeOAuthJSON(accessToken: "from-good", expiresAt: 9_999_999_999_999).write(to: good)
+
+        let credential = try OAuthCredential.fromCredentialSources(filePaths: [bad, good])
+        #expect(credential.accessToken == "from-good")
+    }
+
     // MARK: - Helper
 
     private func makeOAuthJSON(accessToken: String, expiresAt: Int64) -> Data {
