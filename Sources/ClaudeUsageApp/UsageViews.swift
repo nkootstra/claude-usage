@@ -78,12 +78,15 @@ struct UsageCard: View {
     let bucket: UsageBucket
     var compact: Bool = false
 
+    @AppStorage("warningThreshold") private var warningThreshold = 50.0
+    @AppStorage("criticalThreshold") private var criticalThreshold = 80.0
+
     private var pct: Double { bucket.utilization / 100.0 }
 
     private var barColor: Color {
         switch bucket.utilization {
-        case 0..<50: return Color(.systemGreen)
-        case 50..<80: return Color(.systemOrange)
+        case 0..<warningThreshold: return Color(.systemGreen)
+        case warningThreshold..<criticalThreshold: return Color(.systemOrange)
         default: return Color(.systemRed)
         }
     }
@@ -118,23 +121,25 @@ struct UsageCard: View {
             Text("\(Int(bucket.utilization))%")
                 .font(compact ? .callout : .title3)
                 .fontWeight(.semibold)
+                .fontDesign(.rounded)
                 .monospacedDigit()
 
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 2.5)
+                    RoundedRectangle(cornerRadius: 3)
                         .fill(Color.primary.opacity(0.08))
-                    RoundedRectangle(cornerRadius: 2.5)
+                    RoundedRectangle(cornerRadius: 3)
                         .fill(barColor)
                         .frame(width: max(0, geo.size.width * min(pct, 1.0)))
                 }
             }
-            .frame(height: compact ? 4 : 5)
+            .frame(height: compact ? 4 : 6)
         }
-        .padding(10)
+        .padding(EdgeInsets(top: 10, leading: 12, bottom: 10, trailing: 12))
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.primary.opacity(0.04))
-        .cornerRadius(8)
+        .cornerRadius(10)
+        .shadow(color: .primary.opacity(0.04), radius: 4, y: 2)
     }
 }
 
@@ -154,11 +159,14 @@ struct EnterpriseCreditCard: View {
         return used / limit
     }
 
+    @AppStorage("warningThreshold") private var warningThreshold = 50.0
+    @AppStorage("criticalThreshold") private var criticalThreshold = 80.0
+
     private var barColor: Color {
         let pct = spendPct * 100
         switch pct {
-        case 0..<50: return Color(.systemGreen)
-        case 50..<80: return Color(.systemOrange)
+        case 0..<warningThreshold: return Color(.systemGreen)
+        case warningThreshold..<criticalThreshold: return Color(.systemOrange)
         default: return Color(.systemRed)
         }
     }
@@ -205,6 +213,7 @@ struct EnterpriseCreditCard: View {
                 Text("\(Int(spendPct * 100))%")
                     .font(.title2)
                     .fontWeight(.semibold)
+                    .fontDesign(.rounded)
                     .monospacedDigit()
 
                 if let limit = extra.monthlyLimitAmount {
@@ -218,6 +227,7 @@ struct EnterpriseCreditCard: View {
                     Text(formatUSD(used))
                         .font(.title2)
                         .fontWeight(.semibold)
+                        .fontDesign(.rounded)
                         .monospacedDigit()
                 }
 
@@ -232,14 +242,14 @@ struct EnterpriseCreditCard: View {
             if hasLimit {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 2.5)
+                        RoundedRectangle(cornerRadius: 3)
                             .fill(Color.primary.opacity(0.08))
-                        RoundedRectangle(cornerRadius: 2.5)
+                        RoundedRectangle(cornerRadius: 3)
                             .fill(barColor)
                             .frame(width: max(0, geo.size.width * min(spendPct, 1.0)))
                     }
                 }
-                .frame(height: 5)
+                .frame(height: 6)
             }
 
             if let projection = creditProjection, let date = projection.projectedExhaustionDate {
@@ -248,10 +258,11 @@ struct EnterpriseCreditCard: View {
                     .foregroundStyle(.tertiary)
             }
         }
-        .padding(10)
+        .padding(EdgeInsets(top: 10, leading: 12, bottom: 10, trailing: 12))
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.primary.opacity(0.04))
-        .cornerRadius(8)
+        .cornerRadius(10)
+        .shadow(color: .primary.opacity(0.04), radius: 4, y: 2)
     }
 }
 
@@ -263,11 +274,14 @@ struct ExtraUsageCard: View {
 
     private var pct: Double { (extra.utilization ?? 0) / 100.0 }
 
+    @AppStorage("warningThreshold") private var warningThreshold = 50.0
+    @AppStorage("criticalThreshold") private var criticalThreshold = 80.0
+
     private var barColor: Color {
         guard let utilization = extra.utilization else { return Color(.systemOrange) }
         switch utilization {
-        case 0..<50: return Color(.systemGreen)
-        case 50..<80: return Color(.systemOrange)
+        case 0..<warningThreshold: return Color(.systemGreen)
+        case warningThreshold..<criticalThreshold: return Color(.systemOrange)
         default: return Color(.systemRed)
         }
     }
@@ -290,18 +304,19 @@ struct ExtraUsageCard: View {
                 Text("\(Int(utilization))%")
                     .font(.callout)
                     .fontWeight(.semibold)
+                    .fontDesign(.rounded)
                     .monospacedDigit()
 
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 2.5)
+                        RoundedRectangle(cornerRadius: 3)
                             .fill(Color.primary.opacity(0.08))
-                        RoundedRectangle(cornerRadius: 2.5)
+                        RoundedRectangle(cornerRadius: 3)
                             .fill(barColor)
                             .frame(width: max(0, geo.size.width * min(pct, 1.0)))
                     }
                 }
-                .frame(height: 5)
+                .frame(height: 6)
             }
 
             if let projection = creditProjection, let date = projection.projectedExhaustionDate {
@@ -310,9 +325,10 @@ struct ExtraUsageCard: View {
                     .foregroundStyle(.tertiary)
             }
         }
-        .padding(10)
+        .padding(EdgeInsets(top: 10, leading: 12, bottom: 10, trailing: 12))
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.primary.opacity(0.04))
-        .cornerRadius(8)
+        .cornerRadius(10)
+        .shadow(color: .primary.opacity(0.04), radius: 4, y: 2)
     }
 }

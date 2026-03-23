@@ -5,7 +5,7 @@ public typealias CredentialProvider = @Sendable () -> OAuthCredential?
 @MainActor
 public final class UsageViewModel: ObservableObject {
     @Published public var usage: UsageResponse?
-    @Published public var error: String?
+    @Published public var error: UsageError?
     @Published public var lastUpdated: Date?
     @Published public private(set) var currentBackoff: TimeInterval?
     @Published public var historyPoints: [UsageDataPoint] = []
@@ -13,12 +13,10 @@ public final class UsageViewModel: ObservableObject {
     @Published public var availableUpdate: UpdateInfo?
 
     private let client: TokenRefreshingClient
-    private var pollingInterval: TimeInterval
-    private var pollingTask: Task<Void, Never>?
-    private var updateTask: Task<Void, Never>?
-    private let notificationService: NotificationService?
-    private let historyStore: UsageHistoryStore?
-    private let updateChecker: UpdateChecker
+    private let pollingService: PollingService
+    private let historyService: HistoryServiceProtocol?
+    private let notificationCoordinator: NotificationCoordinatorProtocol?
+    private let updateService: UpdateService
 
     public var isEnterprise: Bool {
         usage?.fiveHour == nil && usage?.sevenDay == nil
@@ -29,7 +27,6 @@ public final class UsageViewModel: ObservableObject {
         if isEnterprise {
             guard let used = usage?.extraUsage?.usedCreditsAmount else { return "--" }
             if used < 1 { return "$0" }
-            if used < 100 { return String(format: "$%.0f", used) }
             return String(format: "$%.0f", used)
         }
         guard let utilization = usage?.fiveHour?.utilization else { return "--" }
@@ -44,153 +41,122 @@ public final class UsageViewModel: ObservableObject {
         historyStore: UsageHistoryStore? = nil,
         updateChecker: UpdateChecker = UpdateChecker()
     ) {
-        self.client = TokenRefreshingClient(apiClient: apiClient, credentialProvider: credentialProvider)
-        self.pollingInterval = pollingInterval
-        self.notificationService = notificationService
-        self.historyStore = historyStore
-        self.updateChecker = updateChecker
+        let client = TokenRefreshingClient(apiClient: apiClient, credentialProvider: credentialProvider)
+        self.client = client
+        self.pollingService = PollingService(client: client, pollingInterval: pollingInterval)
+        self.historyService = historyStore.map { HistoryService(store: $0) }
+        self.notificationCoordinator = notificationService.map { NotificationCoordinator(notificationService: $0) }
+        self.updateService = UpdateService(checker: updateChecker)
+
+        pollingService.onResult = { @MainActor [weak self] result in
+            await self?.handleFetchResult(result)
+        }
+        updateService.onUpdate = { [weak self] update in
+            self?.availableUpdate = update
+        }
     }
 
     public func startPolling() {
-        stopPolling()
-        pollingTask = Task {
-            await refresh()
-            while !Task.isCancelled {
-                let interval = currentBackoff ?? pollingInterval
-                try? await Task.sleep(for: .seconds(interval))
-                guard !Task.isCancelled else { break }
-                await refresh()
-            }
-        }
-        startUpdateChecking()
+        pollingService.start()
+        updateService.start()
     }
 
-    private static let updateCheckInterval: TimeInterval = 6 * 3600 // 6 hours
-    private static let dismissedVersionKey = "claude-usage.dismissedUpdateVersion"
-
-    private func startUpdateChecking() {
-        updateTask?.cancel()
-        updateTask = Task {
-            await checkForUpdate()
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(Self.updateCheckInterval))
-                guard !Task.isCancelled else { break }
-                await checkForUpdate()
-            }
-        }
+    public func stopPolling() {
+        pollingService.stop()
+        updateService.stop()
     }
 
-    private func checkForUpdate() async {
-        let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
-        guard let update = await updateChecker.check(currentVersion: currentVersion) else { return }
-        let dismissed = UserDefaults.standard.string(forKey: Self.dismissedVersionKey)
-        if update.version != dismissed {
-            availableUpdate = update
-        }
+    public func updatePollingInterval(_ seconds: TimeInterval) {
+        pollingService.updateInterval(seconds)
     }
 
     public func dismissUpdate() {
         if let version = availableUpdate?.version {
-            UserDefaults.standard.set(version, forKey: Self.dismissedVersionKey)
+            updateService.dismissUpdate(version: version)
         }
         availableUpdate = nil
-    }
-
-    public func updatePollingInterval(_ seconds: TimeInterval) {
-        pollingInterval = seconds
-        if pollingTask != nil {
-            startPolling() // restart with new interval
-        }
-    }
-
-    public func stopPolling() {
-        pollingTask?.cancel()
-        pollingTask = nil
-        updateTask?.cancel()
-        updateTask = nil
     }
 
     public func signOut() {
         stopPolling()
         usage = nil
-        error = "No credential"
+        error = .noCredential
         lastUpdated = nil
         currentBackoff = nil
         historyPoints = []
         creditProjection = nil
     }
 
+    /// Single manual refresh — used by UI "refresh" button and tests.
     public func refresh() async {
+        pollingService.resetBackoff()
+        currentBackoff = nil
         do {
             let result = try await client.fetchUsage()
-            usage = result.usage
+            await handleFetchResult(.success(result))
+        } catch {
+            await handleFetchResult(.failure(error))
+        }
+        // Restart polling so the loop picks up the new backoff state
+        pollingService.start()
+    }
+
+    private func handleFetchResult(_ result: Result<UsageFetchResult, any Error>) async {
+        switch result {
+        case .success(let fetchResult):
+            usage = fetchResult.usage
             error = nil
             lastUpdated = Date()
             currentBackoff = nil
+            pollingService.resetBackoff()
 
             // Record history
-            if let store = historyStore {
-                let u = result.usage
-                let point = UsageDataPoint(
-                    timestamp: Date(),
-                    fiveHourUtilization: u.fiveHour?.utilization ?? 0,
-                    sevenDayUtilization: u.sevenDay?.utilization ?? 0,
-                    sonnetUtilization: u.sevenDaySonnet?.utilization,
-                    opusUtilization: u.sevenDayOpus?.utilization,
-                    extraUsageUtilization: u.extraUsage?.utilization,
-                    extraUsedCents: u.extraUsage?.usedCredits,
-                    extraLimitCents: u.extraUsage?.monthlyLimit
-                )
-                try? await store.record(point)
-                // Prune on each write (cheap with indexed timestamp)
-                try? await store.prune()
-                historyPoints = (try? await store.load()) ?? []
+            if let historyService {
+                await historyService.record(from: fetchResult.usage)
+                historyPoints = await historyService.loadPoints()
+            }
 
-                // Burn rate projection + notification
-                if let fiveHourPct = result.usage.fiveHour?.utilization {
-                    let projection = BurnRateCalculator.project(
-                        points: historyPoints,
-                        currentUtilization: fiveHourPct
+            // Notifications + credit projection
+            if let notificationCoordinator {
+                let evaluation = notificationCoordinator.evaluate(
+                    usage: fetchResult.usage,
+                    historyPoints: historyPoints
+                )
+                creditProjection = evaluation.creditProjection
+            } else {
+                // Compute credit projection even without notification service
+                if let extra = fetchResult.usage.extraUsage, extra.isEnabled,
+                   let used = extra.usedCreditsAmount, let limit = extra.monthlyLimitAmount {
+                    creditProjection = BurnRateCalculator.projectCredits(
+                        usedDollars: used,
+                        limitDollars: limit
                     )
-                    if let svc = notificationService,
-                       svc.shouldNotifyBurnRate(projection: projection, bucketLabel: "5-Hour") {
-                        svc.sendBurnRateNotification(bucketLabel: "5-Hour", minutesRemaining: projection.minutesUntilExhaustion ?? 0)
-                        svc.markBurnRateNotified(bucketLabel: "5-Hour")
-                    }
+                } else {
+                    creditProjection = nil
                 }
             }
 
-            // Enterprise credit projection
-            if let extra = result.usage.extraUsage, extra.isEnabled,
-               let used = extra.usedCreditsAmount, let limit = extra.monthlyLimitAmount {
-                creditProjection = BurnRateCalculator.projectCredits(
-                    usedDollars: used,
-                    limitDollars: limit
-                )
+        case .failure(let err):
+            if let clientError = err as? TokenRefreshingClientError {
+                switch clientError {
+                case .noCredential:
+                    error = .noCredential
+                case .unauthorized:
+                    error = .unauthorized
+                case .backoff(let interval):
+                    pollingService.setBackoff(interval)
+                    currentBackoff = interval
+                    error = .rateLimited(retryIn: interval)
+                case .other(let message):
+                    pollingService.applyBackoff(baseInterval: 30)
+                    currentBackoff = pollingService.currentBackoff
+                    error = .networkError(message)
+                }
             } else {
-                creditProjection = nil
+                pollingService.applyBackoff(baseInterval: 30)
+                currentBackoff = pollingService.currentBackoff
+                error = .unknown(err.localizedDescription)
             }
-
-            // Threshold notifications
-            if let pct = usage?.fiveHour?.utilization {
-                notificationService?.checkAndNotify(fiveHourPct: pct)
-            }
-        } catch let err as TokenRefreshingClientError {
-            switch err {
-            case .noCredential:
-                error = "No credential"
-            case .unauthorized:
-                error = "Unauthorized — token may be revoked"
-            case .backoff(let interval):
-                currentBackoff = interval
-                error = "Rate limited — retrying in \(Int(interval))s"
-            case .other(let message):
-                currentBackoff = min((currentBackoff ?? pollingInterval) * 2, 3600)
-                error = message
-            }
-        } catch {
-            currentBackoff = min((currentBackoff ?? pollingInterval) * 2, 3600)
-            self.error = error.localizedDescription
         }
     }
 }

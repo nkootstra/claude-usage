@@ -324,6 +324,186 @@
         "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "de um limite de %@" } },
         "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "de um limite de %@" } }
       }
+    },
+    "Polling" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfrage" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Consulta" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Interrogation" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Ophalen" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Consulta" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Consulta" } }
+      }
+    },
+    "Appearance" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Darstellung" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Apariencia" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Apparence" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Weergave" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Apar\u00eancia" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Apar\u00eancia" } }
+      }
+    },
+    "Icon only" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Nur Symbol" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Solo icono" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ic\u00f4ne seule" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Alleen icoon" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Apenas \u00edcone" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Apenas \u00edcone" } }
+      }
+    },
+    "Color mode" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Farbmodus" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Modo de color" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Mode couleur" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Kleurmodus" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Modo de cor" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Modo de cor" } }
+      }
+    },
+    "Traffic light" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ampel" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sem\u00e1foro" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Feu tricolore" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Stoplicht" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sem\u00e1foro" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Sem\u00e1foro" } }
+      }
+    },
+    "Single color" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Einfarbig" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Color \u00fanico" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Couleur unique" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Enkele kleur" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cor \u00fanica" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Cor \u00fanica" } }
+      }
+    },
+    "Warning" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Warnung" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aviso" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Attention" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Waarschuwing" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Aviso" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Aviso" } }
+      }
+    },
+    "Critical" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kritisch" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cr\u00edtico" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Critique" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Kritiek" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cr\u00edtico" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Cr\u00edtico" } }
+      }
+    },
+    "Notifications" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Benachrichtigungen" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Notificaciones" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notifications" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Meldingen" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Notifica\u00e7\u00f5es" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Notifica\u00e7\u00f5es" } }
+      }
+    },
+    "Warn at" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Warnen bei" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Alerter \u00e0" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Melden bij" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a" } }
+      }
+    },
+    "Critical at" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kritisch bei" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cr\u00edtico a" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Critique \u00e0" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Kritiek bij" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cr\u00edtico a" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Cr\u00edtico a" } }
+      }
+    },
+    "Ring color thresholds" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Farbschwellen des Rings" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Umbrales de color del anillo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Seuils de couleur de l'anneau" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Kleurdrempels ring" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Limites de cor do anel" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Limites de cor do anel" } }
+      }
+    },
+    "Notification thresholds" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Benachrichtigungsschwellen" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Umbrales de notificaci\u00f3n" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Seuils de notification" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Meldingsdrempels" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Limites de notifica\u00e7\u00e3o" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Limites de notifica\u00e7\u00e3o" } }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abbrechen" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Annuler" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Annuleren" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } }
+      }
+    },
+    "Paste from clipboard" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aus Zwischenablage einf\u00fcgen" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Pegar del portapapeles" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Coller depuis le presse-papiers" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Plakken uit klembord" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Colar da \u00e1rea de transfer\u00eancia" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Colar da \u00e1rea de transfer\u00eancia" } }
+      }
+    },
+    "Retry Now" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Jetzt erneut versuchen" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reintentar" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "R\u00e9essayer" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Opnieuw proberen" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Tentar novamente" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Tentar novamente" } }
+      }
+    },
+    "Pin widget" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Widget anheften" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Fijar widget" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "\u00c9pingler le widget" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Widget vastpinnen" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Fixar widget" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Fixar widget" } }
+      }
+    },
+    "Unpin widget" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Widget l\u00f6sen" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Desfijar widget" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "D\u00e9tacher le widget" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Widget losmaken" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Desfixar widget" } },
+        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Desfixar widget" } }
+      }
     }
   },
   "version" : "1.0"

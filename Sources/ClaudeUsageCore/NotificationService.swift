@@ -6,14 +6,9 @@ public final class NotificationService: Sendable {
 
     /// Returns active thresholds based on user settings
     private var thresholds: [Double] {
-        var result: [Double] = []
-        if UserDefaults.standard.object(forKey: "notifyAt80") == nil || UserDefaults.standard.bool(forKey: "notifyAt80") {
-            result.append(80)
-        }
-        if UserDefaults.standard.object(forKey: "notifyAt95") == nil || UserDefaults.standard.bool(forKey: "notifyAt95") {
-            result.append(95)
-        }
-        return result
+        let warning = UserDefaults.standard.object(forKey: "warningThreshold") as? Double ?? 50
+        let critical = UserDefaults.standard.object(forKey: "criticalThreshold") as? Double ?? 80
+        return [warning, critical]
     }
 
     public init() {}

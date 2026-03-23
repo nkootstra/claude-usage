@@ -4,6 +4,9 @@ import ClaudeUsageCore
 struct MenuBarLabel: View {
     @ObservedObject var viewModel: UsageViewModel
     @AppStorage("enterpriseShowPct") private var showPercentage = false
+    @AppStorage("warningThreshold") private var warningThreshold = 50.0
+    @AppStorage("criticalThreshold") private var criticalThreshold = 80.0
+    @AppStorage("colorMode") private var colorMode = "traffic_light"
 
     private var pct: Double {
         if viewModel.isEnterprise {
@@ -27,9 +30,14 @@ struct MenuBarLabel: View {
     }
 
     private var ringColor: Color {
+        if colorMode == "single_color" {
+            // Teal gradient: lighter at low usage, darker at high
+            return Color(.systemTeal).opacity(0.4 + (pct / 100.0) * 0.6)
+        }
+        // Traffic light mode
         switch pct {
-        case 0..<50: return Color(.systemGreen)
-        case 50..<80: return Color(.systemOrange)
+        case 0..<warningThreshold: return Color(.systemGreen)
+        case warningThreshold..<criticalThreshold: return Color(.systemOrange)
         default: return Color(.systemRed)
         }
     }
