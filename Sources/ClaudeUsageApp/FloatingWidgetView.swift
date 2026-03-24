@@ -40,37 +40,36 @@ struct FloatingWidgetView: View {
     }
 
     var body: some View {
-        VStack(spacing: 4) {
-            ZStack {
-                Circle()
-                    .stroke(Color.primary.opacity(0.15), lineWidth: 3)
-                Circle()
-                    .trim(from: 0, to: min(pct / 100.0, 1.0))
-                    .stroke(ringColor, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-            }
-            .frame(width: 32, height: 32)
+        ZStack {
+            Circle()
+                .stroke(Color.primary.opacity(0.12), lineWidth: 3.5)
+            Circle()
+                .trim(from: 0, to: min(pct / 100.0, 1.0))
+                .stroke(ringColor, style: StrokeStyle(lineWidth: 3.5, lineCap: .round))
+                .rotationEffect(.degrees(-90))
 
             Text(displayText)
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(.primary)
         }
+        .frame(width: 44, height: 44)
         .padding(10)
-        .frame(width: 60, height: 60)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
+        .preferredColorScheme(.dark)
+        .padding(10) // extra space for the close button to float in
         .overlay(alignment: .topTrailing) {
             if isHovering {
                 Button {
                     onClose?()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 14))
+                        .font(.system(size: 16))
                         .symbolRenderingMode(.hierarchical)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.white.opacity(0.7))
                 }
                 .buttonStyle(.borderless)
-                .offset(x: 4, y: -4)
+                .padding(2)
             }
         }
         .onHover { isHovering = $0 }

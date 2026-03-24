@@ -37,10 +37,10 @@ final class FloatingWidgetController {
             self?.hide()
         }
         let hostingView = NSHostingView(rootView: widgetView)
-        hostingView.frame = NSRect(x: 0, y: 0, width: 60, height: 60)
+        hostingView.frame = NSRect(x: 0, y: 0, width: 84, height: 84)
 
         let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 60, height: 60),
+            contentRect: NSRect(x: 0, y: 0, width: 84, height: 84),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
