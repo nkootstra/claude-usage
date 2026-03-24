@@ -40,39 +40,39 @@ struct FloatingWidgetView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            VStack(spacing: 4) {
-                ZStack {
-                    Circle()
-                        .stroke(Color.primary.opacity(0.15), lineWidth: 3)
-                    Circle()
-                        .trim(from: 0, to: min(pct / 100.0, 1.0))
-                        .stroke(ringColor, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                        .rotationEffect(.degrees(-90))
-                }
-                .frame(width: 32, height: 32)
-
-                Text(displayText)
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(.primary)
+        VStack(spacing: 4) {
+            ZStack {
+                Circle()
+                    .stroke(Color.primary.opacity(0.15), lineWidth: 3)
+                Circle()
+                    .trim(from: 0, to: min(pct / 100.0, 1.0))
+                    .stroke(ringColor, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
             }
-            .padding(10)
+            .frame(width: 32, height: 32)
 
+            Text(displayText)
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(.primary)
+        }
+        .padding(10)
+        .frame(width: 60, height: 60)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(alignment: .topTrailing) {
             if isHovering {
                 Button {
                     onClose?()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 12))
+                        .font(.system(size: 14))
+                        .symbolRenderingMode(.hierarchical)
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.borderless)
-                .padding(4)
+                .offset(x: 4, y: -4)
             }
         }
-        .frame(width: 60, height: 60)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
         .onHover { isHovering = $0 }
     }
 }
