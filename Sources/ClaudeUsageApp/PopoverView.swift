@@ -1,22 +1,16 @@
 import SwiftUI
 import ClaudeUsageCore
-import UniformTypeIdentifiers
 
 struct MenuContentView: View {
     @ObservedObject var viewModel: UsageViewModel
     var widgetController: FloatingWidgetController?
     @StateObject private var authFlow = AuthFlowState()
-    @State private var exportError: String?
     @State private var showSettings = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             if let usage = viewModel.usage {
                 UsageDetailView(usage: usage, creditProjection: viewModel.creditProjection)
-
-                if !viewModel.historyPoints.isEmpty {
-                    UsageChartView(points: viewModel.historyPoints, isEnterprise: viewModel.isEnterprise)
-                }
             } else if authFlow.isAwaitingCode {
                 OAuthCodeEntryView(authFlow: authFlow, viewModel: viewModel)
             } else if let error = viewModel.error {
@@ -56,14 +50,6 @@ struct MenuContentView: View {
                         .font(.system(size: 9))
                 }
                 Spacer()
-                if !viewModel.historyPoints.isEmpty {
-                    Button { exportCSV() } label: {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                    .buttonStyle(.borderless)
-                    .foregroundStyle(.secondary)
-                    .help("Export CSV")
-                }
                 if viewModel.usage != nil {
                     Button { Task { await viewModel.refresh() } } label: {
                         Image(systemName: "arrow.clockwise")
@@ -101,22 +87,5 @@ struct MenuContentView: View {
         }
         .padding(12)
         .frame(width: 300)
-    }
-
-    private func exportCSV() {
-        let csv = CSVExporter.export(viewModel.historyPoints)
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = "claude-usage.csv"
-        panel.allowedContentTypes = [.commaSeparatedText]
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            do {
-                try csv.write(to: url, atomically: true, encoding: .utf8)
-            } catch {
-                Task { @MainActor in
-                    exportError = "Export failed: \(error.localizedDescription)"
-                }
-            }
-        }
     }
 }
