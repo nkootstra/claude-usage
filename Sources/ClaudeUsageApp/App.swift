@@ -15,6 +15,10 @@ struct ClaudeUsageApp: App {
             MenuBarLabel(viewModel: appDelegate.viewModel)
         }
         .menuBarExtraStyle(.window)
+
+        Settings {
+            SettingsRootView(viewModel: appDelegate.viewModel)
+        }
     }
 }
 

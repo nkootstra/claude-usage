@@ -44,6 +44,25 @@ public final class TokenRefreshingClient: Sendable {
         }
     }
 
+    public func fetchProfile() async throws -> ProfileResponse {
+        var credential = try resolveCredential()
+        if credential.isExpired {
+            if let refreshed = await refreshOwnToken(credential) {
+                credential = refreshed
+            } else {
+                credential = try resolveCredential()
+            }
+        }
+        do {
+            return try await apiClient.fetchProfile(accessToken: credential.accessToken)
+        } catch APIError.unauthorized {
+            if let refreshed = await refreshOwnToken(credential) {
+                return try await apiClient.fetchProfile(accessToken: refreshed.accessToken)
+            }
+            throw TokenRefreshingClientError.unauthorized
+        }
+    }
+
     private func resolveCredential() throws -> OAuthCredential {
         guard let credential = credentialProvider() else {
             throw TokenRefreshingClientError.noCredential

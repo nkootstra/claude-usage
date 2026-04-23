@@ -76,6 +76,42 @@ public final class AnthropicAPIClient: Sendable {
         }
     }
 
+    public func fetchProfile(accessToken: String) async throws -> ProfileResponse {
+        guard let url = URL(string: "\(baseURL)/api/oauth/profile") else {
+            throw APIError.invalidResponse
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(ClaudeAPI.betaHeader, forHTTPHeaderField: "anthropic-beta")
+
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
+
+        guard let http = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+
+        switch http.statusCode {
+        case 200..<300:
+            return try JSONDecoder().decode(ProfileResponse.self, from: data)
+        case 401, 403:
+            throw APIError.unauthorized
+        case 429:
+            let retryAfter = http.value(forHTTPHeaderField: "Retry-After")
+                .flatMap(TimeInterval.init)
+            throw APIError.rateLimited(retryAfter: retryAfter)
+        default:
+            throw APIError.serverError(http.statusCode)
+        }
+    }
+
     public func refreshToken(refreshToken: String) async throws -> TokenRefreshResponse {
         var request = URLRequest(url: ClaudeAPI.tokenURL)
         request.httpMethod = "POST"

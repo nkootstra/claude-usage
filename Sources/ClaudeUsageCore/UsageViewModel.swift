@@ -11,6 +11,11 @@ public final class UsageViewModel: ObservableObject {
     @Published public var historyPoints: [UsageDataPoint] = []
     @Published public var creditProjection: CreditBurnProjection?
     @Published public var availableUpdate: UpdateInfo?
+    @Published public var profile: ProfileResponse?
+
+    public var planTier: PlanTier {
+        PlanTier.derive(profile: profile, isEnterprise: isEnterprise)
+    }
 
     private let client: TokenRefreshingClient
     private let pollingService: PollingService
@@ -85,6 +90,14 @@ public final class UsageViewModel: ObservableObject {
         currentBackoff = nil
         historyPoints = []
         creditProjection = nil
+        profile = nil
+    }
+
+    private func refreshProfileIfNeeded() async {
+        if profile != nil { return }
+        if let fetched = try? await client.fetchProfile() {
+            profile = fetched
+        }
     }
 
     /// Single manual refresh — used by UI "refresh" button and tests.
@@ -109,6 +122,8 @@ public final class UsageViewModel: ObservableObject {
             lastUpdated = Date()
             currentBackoff = nil
             pollingService.resetBackoff()
+
+            await refreshProfileIfNeeded()
 
             // Record history
             if let historyService {

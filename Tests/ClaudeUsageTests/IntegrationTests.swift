@@ -215,6 +215,12 @@ struct IntegrationTests {
         let credCounter = FetchCounter()
 
         let mockSession = MockURLSession { request in
+            let path = request.url?.path ?? ""
+            if path.contains("/profile") {
+                return (Data(), HTTPURLResponse(
+                    url: request.url!, statusCode: 500,
+                    httpVersion: nil, headerFields: nil)!)
+            }
             apiCounter.increment()
             let token = request.value(forHTTPHeaderField: "Authorization") ?? ""
             if token.contains("stale") {

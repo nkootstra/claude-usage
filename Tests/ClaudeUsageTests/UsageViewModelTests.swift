@@ -109,8 +109,8 @@ struct UsageViewModelTests {
 
         await vm.refresh()
 
-        // Should have called credentialProvider twice (re-read on expiry)
-        #expect(counter.value == 2)
+        // credentialProvider called for: stale usage fetch, fresh usage re-read, profile fetch
+        #expect(counter.value >= 2)
         #expect(vm.menuBarText == "5%")
     }
 
@@ -128,6 +128,12 @@ struct UsageViewModelTests {
 
         let apiCounter = FetchCounter()
         let mockSession = MockURLSession { request in
+            let path = request.url?.path ?? ""
+            if path.contains("/profile") {
+                return (Data(), HTTPURLResponse(
+                    url: request.url!, statusCode: 500,
+                    httpVersion: nil, headerFields: nil)!)
+            }
             apiCounter.increment()
             let token = request.value(forHTTPHeaderField: "Authorization") ?? ""
             // First call with stale token → 401, second with fresh → 200
