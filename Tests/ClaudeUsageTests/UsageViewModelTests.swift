@@ -331,41 +331,6 @@ struct UsageViewModelTests {
         #expect(vm.menuBarText == "5%")
     }
 
-    @Test("Records history point on successful fetch")
-    @MainActor
-    func recordsHistory() async throws {
-        let dir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("claude-usage-vm-test-\(UUID().uuidString)")
-        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-
-        let fixture = """
-        {
-            "five_hour": { "utilization": 42.0, "resets_at": "2026-03-22T12:00:00+00:00" },
-            "seven_day": { "utilization": 17.0, "resets_at": "2026-03-27T12:00:00+00:00" },
-            "extra_usage": { "is_enabled": false, "monthly_limit": null, "used_credits": null, "utilization": null }
-        }
-        """.data(using: .utf8)!
-
-        let mockSession = MockURLSession { _ in
-            return (fixture, HTTPURLResponse(
-                url: URL(string: "https://api.anthropic.com/api/oauth/usage")!,
-                statusCode: 200, httpVersion: nil, headerFields: nil)!)
-        }
-
-        let store = UsageHistoryStore(directory: dir)
-        let vm = UsageViewModel(
-            apiClient: AnthropicAPIClient(session: mockSession),
-            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
-            historyStore: store
-        )
-
-        await vm.refresh()
-
-        #expect(vm.historyPoints.count == 1)
-        #expect(vm.historyPoints[0].fiveHourUtilization == 42.0)
-        #expect(vm.historyPoints[0].sevenDayUtilization == 17.0)
-    }
-
     @Test("Successful refresh clears previous error")
     @MainActor
     func successClearsPreviousError() async throws {

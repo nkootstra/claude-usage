@@ -8,7 +8,6 @@ public final class UsageViewModel: ObservableObject {
     @Published public var error: UsageError?
     @Published public var lastUpdated: Date?
     @Published public private(set) var currentBackoff: TimeInterval?
-    @Published public var historyPoints: [UsageDataPoint] = []
     @Published public var creditProjection: CreditBurnProjection?
     @Published public var availableUpdate: UpdateInfo?
     @Published public var profile: ProfileResponse?
@@ -19,8 +18,7 @@ public final class UsageViewModel: ObservableObject {
 
     private let client: TokenRefreshingClient
     private let pollingService: PollingService
-    private let historyService: HistoryServiceProtocol?
-    private let notificationCoordinator: NotificationCoordinatorProtocol?
+    private let notificationCoordinator: NotificationCoordinator?
     private let updateService: UpdateService
 
     public var isEnterprise: Bool {
@@ -43,13 +41,11 @@ public final class UsageViewModel: ObservableObject {
         credentialProvider: @escaping CredentialProvider,
         pollingInterval: TimeInterval = 300,
         notificationService: NotificationService? = nil,
-        historyStore: UsageHistoryStore? = nil,
         updateChecker: UpdateChecker = UpdateChecker()
     ) {
         let client = TokenRefreshingClient(apiClient: apiClient, credentialProvider: credentialProvider)
         self.client = client
         self.pollingService = PollingService(client: client, pollingInterval: pollingInterval)
-        self.historyService = historyStore.map { HistoryService(store: $0) }
         self.notificationCoordinator = notificationService.map { NotificationCoordinator(notificationService: $0) }
         self.updateService = UpdateService(checker: updateChecker)
 
@@ -88,9 +84,9 @@ public final class UsageViewModel: ObservableObject {
         error = .noCredential
         lastUpdated = nil
         currentBackoff = nil
-        historyPoints = []
         creditProjection = nil
         profile = nil
+        notificationCoordinator?.reset()
     }
 
     private func refreshProfileIfNeeded() async {
@@ -125,30 +121,16 @@ public final class UsageViewModel: ObservableObject {
 
             await refreshProfileIfNeeded()
 
-            // Record history
-            if let historyService {
-                await historyService.record(from: fetchResult.usage)
-                historyPoints = await historyService.loadPoints()
-            }
-
-            // Notifications + credit projection
             if let notificationCoordinator {
-                let evaluation = notificationCoordinator.evaluate(
-                    usage: fetchResult.usage,
-                    historyPoints: historyPoints
+                creditProjection = notificationCoordinator.evaluate(usage: fetchResult.usage).creditProjection
+            } else if let extra = fetchResult.usage.extraUsage, extra.isEnabled,
+                      let used = extra.usedCreditsAmount, let limit = extra.monthlyLimitAmount {
+                creditProjection = BurnRateCalculator.projectCredits(
+                    usedDollars: used,
+                    limitDollars: limit
                 )
-                creditProjection = evaluation.creditProjection
             } else {
-                // Compute credit projection even without notification service
-                if let extra = fetchResult.usage.extraUsage, extra.isEnabled,
-                   let used = extra.usedCreditsAmount, let limit = extra.monthlyLimitAmount {
-                    creditProjection = BurnRateCalculator.projectCredits(
-                        usedDollars: used,
-                        limitDollars: limit
-                    )
-                } else {
-                    creditProjection = nil
-                }
+                creditProjection = nil
             }
 
         case .failure(let err):
