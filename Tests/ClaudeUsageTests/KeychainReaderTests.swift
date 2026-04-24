@@ -226,40 +226,40 @@ struct KeychainReaderTests {
         #expect(credential.accessToken == "from-good")
     }
 
-    // MARK: - Sign-out flag (UserDefaults only — avoids keychain access in tests)
-
-    @Test("isSignedOut defaults to false")
-    func signedOutDefaultFalse() throws {
-        let key = "io.kootstra.claude-usage.signedOut"
-        UserDefaults.standard.removeObject(forKey: key)
-        defer { UserDefaults.standard.removeObject(forKey: key) }
-        #expect(CredentialStore.isSignedOut == false)
-    }
-
-    @Test("isSignedOut can be set to true")
-    func signedOutSetTrue() throws {
-        let key = "io.kootstra.claude-usage.signedOut"
-        defer { UserDefaults.standard.removeObject(forKey: key) }
-
-        CredentialStore.isSignedOut = true
-        #expect(CredentialStore.isSignedOut == true)
-    }
-
-    @Test("isSignedOut can be cleared")
-    func signedOutCleared() throws {
-        let key = "io.kootstra.claude-usage.signedOut"
-        defer { UserDefaults.standard.removeObject(forKey: key) }
-
-        CredentialStore.isSignedOut = true
-        CredentialStore.isSignedOut = false
-        #expect(CredentialStore.isSignedOut == false)
-    }
-
     // MARK: - Helper
 
     private func makeOAuthJSON(accessToken: String, expiresAt: Int64) -> Data {
         """
         { "claudeAiOauth": { "accessToken": "\(accessToken)", "expiresAt": \(expiresAt) } }
         """.data(using: .utf8)!
+    }
+}
+
+/// Sign-out flag tests share a UserDefaults key. Run them serially so parallel
+/// execution can't have one test reset the key while another is asserting on it.
+@Suite("CredentialStore.isSignedOut", .serialized)
+struct IsSignedOutTests {
+    private let key = "io.kootstra.claude-usage.signedOut"
+
+    @Test("Defaults to false")
+    func defaultsToFalse() throws {
+        UserDefaults.standard.removeObject(forKey: key)
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+        #expect(CredentialStore.isSignedOut == false)
+    }
+
+    @Test("Can be set to true")
+    func canBeSetToTrue() throws {
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+        CredentialStore.isSignedOut = true
+        #expect(CredentialStore.isSignedOut == true)
+    }
+
+    @Test("Can be cleared")
+    func canBeCleared() throws {
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+        CredentialStore.isSignedOut = true
+        CredentialStore.isSignedOut = false
+        #expect(CredentialStore.isSignedOut == false)
     }
 }
