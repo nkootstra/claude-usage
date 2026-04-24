@@ -20,6 +20,9 @@ public final class UsageViewModel: ObservableObject {
     private let pollingService: PollingService
     private let notificationCoordinator: NotificationCoordinator?
     private let updateService: UpdateService
+    private let cache: UsageResponseCache?
+    private let pollingInterval: TimeInterval
+    private var cachedFetchedAt: Date?
 
     public var isEnterprise: Bool {
         usage?.fiveHour == nil && usage?.sevenDay == nil
@@ -41,13 +44,22 @@ public final class UsageViewModel: ObservableObject {
         credentialProvider: @escaping CredentialProvider,
         pollingInterval: TimeInterval = 300,
         notificationService: NotificationService? = nil,
-        updateChecker: UpdateChecker = UpdateChecker()
+        updateChecker: UpdateChecker = UpdateChecker(),
+        cache: UsageResponseCache? = UsageResponseCache()
     ) {
         let client = TokenRefreshingClient(apiClient: apiClient, credentialProvider: credentialProvider)
         self.client = client
         self.pollingService = PollingService(client: client, pollingInterval: pollingInterval)
         self.notificationCoordinator = notificationService.map { NotificationCoordinator(notificationService: $0) }
         self.updateService = UpdateService(checker: updateChecker)
+        self.cache = cache
+        self.pollingInterval = pollingInterval
+
+        if let cached = cache?.load() {
+            self.usage = cached.response
+            self.lastUpdated = cached.fetchedAt
+            self.cachedFetchedAt = cached.fetchedAt
+        }
 
         pollingService.onResult = { @MainActor [weak self] result in
             await self?.handleFetchResult(result)
@@ -58,7 +70,17 @@ public final class UsageViewModel: ObservableObject {
     }
 
     public func startPolling() {
-        pollingService.start()
+        if let fetchedAt = cachedFetchedAt {
+            let age = Date().timeIntervalSince(fetchedAt)
+            cachedFetchedAt = nil
+            if age < pollingInterval {
+                pollingService.start(fireImmediately: false, initialDelay: pollingInterval - age)
+            } else {
+                pollingService.start()
+            }
+        } else {
+            pollingService.start()
+        }
         updateService.start()
     }
 
@@ -86,6 +108,8 @@ public final class UsageViewModel: ObservableObject {
         currentBackoff = nil
         creditProjection = nil
         profile = nil
+        cachedFetchedAt = nil
+        cache?.clear()
         notificationCoordinator?.reset()
     }
 
@@ -115,9 +139,12 @@ public final class UsageViewModel: ObservableObject {
         case .success(let fetchResult):
             usage = fetchResult.usage
             error = nil
-            lastUpdated = Date()
+            let now = Date()
+            lastUpdated = now
             currentBackoff = nil
+            cachedFetchedAt = nil
             pollingService.resetBackoff()
+            cache?.save(CachedUsageResponse(fetchedAt: now, response: fetchResult.usage))
 
             await refreshProfileIfNeeded()
 

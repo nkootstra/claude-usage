@@ -53,7 +53,8 @@ struct IntegrationTests {
 
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
-            credentialProvider: { OAuthCredential.mock(accessToken: "token") }
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            cache: nil
         )
 
         await vm.refresh()
@@ -79,7 +80,8 @@ struct IntegrationTests {
 
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
-            credentialProvider: { OAuthCredential.mock(accessToken: "token") }
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            cache: nil
         )
 
         await vm.refresh()
@@ -99,7 +101,8 @@ struct IntegrationTests {
 
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
-            credentialProvider: { OAuthCredential.mock(accessToken: "token") }
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            cache: nil
         )
 
         await vm.refresh()
@@ -144,7 +147,8 @@ struct IntegrationTests {
                     return OAuthCredential.mock(accessToken: "stale-token")
                 }
                 return OAuthCredential.mock(accessToken: "fresh-token")
-            }
+            },
+            cache: nil
         )
 
         await vm.refresh()
@@ -174,7 +178,8 @@ struct IntegrationTests {
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
             credentialProvider: { OAuthCredential.mock(accessToken: "token") },
-            pollingInterval: 60
+            pollingInterval: 60,
+            cache: nil
         )
 
         await vm.refresh()
@@ -204,7 +209,8 @@ struct IntegrationTests {
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
             credentialProvider: { OAuthCredential.mock(accessToken: "token") },
-            pollingInterval: 0.1
+            pollingInterval: 0.1,
+            cache: nil
         )
 
         vm.startPolling()
@@ -231,7 +237,8 @@ struct IntegrationTests {
 
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
-            credentialProvider: { OAuthCredential.mock(accessToken: "token") }
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            cache: nil
         )
 
         await vm.refresh()
@@ -253,7 +260,8 @@ struct IntegrationTests {
     func noCredentialPipeline() async throws {
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(),
-            credentialProvider: { nil }
+            credentialProvider: { nil },
+            cache: nil
         )
 
         await vm.refresh()
@@ -277,7 +285,8 @@ struct IntegrationTests {
 
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
-            credentialProvider: { OAuthCredential.mock(accessToken: "token") }
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            cache: nil
         )
 
         await vm.refresh()
