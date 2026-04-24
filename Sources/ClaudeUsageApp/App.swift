@@ -15,28 +15,28 @@ struct ClaudeUsageApp: App {
             MenuBarLabel(viewModel: appDelegate.viewModel)
         }
         .menuBarExtraStyle(.window)
+
+        Settings {
+            SettingsRootView(viewModel: appDelegate.viewModel)
+        }
     }
 }
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let notificationService = NotificationService()
-    private let historyStore = UsageHistoryStore()
 
     lazy var viewModel = UsageViewModel(
         credentialProvider: {
             try? OAuthCredential.fromKeychain()
         },
-        notificationService: notificationService,
-        historyStore: historyStore
+        notificationService: notificationService
     )
 
     lazy var widgetController = FloatingWidgetController(viewModel: viewModel)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApplication.shared.setActivationPolicy(.accessory)
-        let dir = UsageHistoryStore.defaultDirectory()
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         notificationService.requestPermission()
         viewModel.startPolling()
 

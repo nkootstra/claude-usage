@@ -24,7 +24,8 @@ struct UsageViewModelTests {
 
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
-            credentialProvider: { OAuthCredential.mock(accessToken: "token") }
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            cache: nil
         )
 
         await vm.refresh()
@@ -40,7 +41,8 @@ struct UsageViewModelTests {
     func noCredential() async throws {
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(),
-            credentialProvider: { nil }
+            credentialProvider: { nil },
+            cache: nil
         )
 
         await vm.refresh()
@@ -60,7 +62,8 @@ struct UsageViewModelTests {
 
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
-            credentialProvider: { OAuthCredential.mock(accessToken: "token") }
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            cache: nil
         )
 
         await vm.refresh()
@@ -104,13 +107,14 @@ struct UsageViewModelTests {
                     accessToken: "fresh-token",
                     expiresAt: Int64(Date().timeIntervalSince1970 * 1000) + 3_600_000
                 )
-            }
+            },
+            cache: nil
         )
 
         await vm.refresh()
 
-        // Should have called credentialProvider twice (re-read on expiry)
-        #expect(counter.value == 2)
+        // credentialProvider called for: stale usage fetch, fresh usage re-read, profile fetch
+        #expect(counter.value >= 2)
         #expect(vm.menuBarText == "5%")
     }
 
@@ -128,6 +132,12 @@ struct UsageViewModelTests {
 
         let apiCounter = FetchCounter()
         let mockSession = MockURLSession { request in
+            let path = request.url?.path ?? ""
+            if path.contains("/profile") {
+                return (Data(), HTTPURLResponse(
+                    url: request.url!, statusCode: 500,
+                    httpVersion: nil, headerFields: nil)!)
+            }
             apiCounter.increment()
             let token = request.value(forHTTPHeaderField: "Authorization") ?? ""
             // First call with stale token → 401, second with fresh → 200
@@ -149,7 +159,8 @@ struct UsageViewModelTests {
                     return OAuthCredential.mock(accessToken: "stale-token")
                 }
                 return OAuthCredential.mock(accessToken: "fresh-token")
-            }
+            },
+            cache: nil
         )
 
         await vm.refresh()
@@ -187,7 +198,8 @@ struct UsageViewModelTests {
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
             credentialProvider: { OAuthCredential.mock(accessToken: "token") },
-            pollingInterval: 0.1
+            pollingInterval: 0.1,
+            cache: nil
         )
 
         // First refresh → 429, should set error and backoff
@@ -224,7 +236,8 @@ struct UsageViewModelTests {
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
             credentialProvider: { OAuthCredential.mock(accessToken: "token") },
-            pollingInterval: 0.1
+            pollingInterval: 0.1,
+            cache: nil
         )
 
         vm.startPolling()
@@ -258,7 +271,8 @@ struct UsageViewModelTests {
 
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
-            credentialProvider: { OAuthCredential.mock(accessToken: "token") }
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            cache: nil
         )
 
         await vm.refresh()
@@ -278,7 +292,8 @@ struct UsageViewModelTests {
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
             credentialProvider: { OAuthCredential.mock(accessToken: "token") },
-            pollingInterval: 30
+            pollingInterval: 30,
+            cache: nil
         )
 
         // Trigger multiple failures to escalate backoff
@@ -312,7 +327,8 @@ struct UsageViewModelTests {
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
             credentialProvider: { OAuthCredential.mock(accessToken: "token") },
-            pollingInterval: 0.1
+            pollingInterval: 0.1,
+            cache: nil
         )
 
         vm.startPolling()
@@ -323,41 +339,6 @@ struct UsageViewModelTests {
 
         // Should still have gotten results (not deadlocked/crashed)
         #expect(vm.menuBarText == "5%")
-    }
-
-    @Test("Records history point on successful fetch")
-    @MainActor
-    func recordsHistory() async throws {
-        let dir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("claude-usage-vm-test-\(UUID().uuidString)")
-        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-
-        let fixture = """
-        {
-            "five_hour": { "utilization": 42.0, "resets_at": "2026-03-22T12:00:00+00:00" },
-            "seven_day": { "utilization": 17.0, "resets_at": "2026-03-27T12:00:00+00:00" },
-            "extra_usage": { "is_enabled": false, "monthly_limit": null, "used_credits": null, "utilization": null }
-        }
-        """.data(using: .utf8)!
-
-        let mockSession = MockURLSession { _ in
-            return (fixture, HTTPURLResponse(
-                url: URL(string: "https://api.anthropic.com/api/oauth/usage")!,
-                statusCode: 200, httpVersion: nil, headerFields: nil)!)
-        }
-
-        let store = UsageHistoryStore(directory: dir)
-        let vm = UsageViewModel(
-            apiClient: AnthropicAPIClient(session: mockSession),
-            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
-            historyStore: store
-        )
-
-        await vm.refresh()
-
-        #expect(vm.historyPoints.count == 1)
-        #expect(vm.historyPoints[0].fiveHourUtilization == 42.0)
-        #expect(vm.historyPoints[0].sevenDayUtilization == 17.0)
     }
 
     @Test("Successful refresh clears previous error")
@@ -385,7 +366,8 @@ struct UsageViewModelTests {
 
         let vm = UsageViewModel(
             apiClient: AnthropicAPIClient(session: mockSession),
-            credentialProvider: { OAuthCredential.mock(accessToken: "token") }
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            cache: nil
         )
 
         await vm.refresh()
@@ -395,6 +377,190 @@ struct UsageViewModelTests {
         #expect(vm.error == nil)
         #expect(vm.menuBarText == "20%")
         #expect(vm.currentBackoff == nil)
+    }
+
+    // MARK: - Cache hydration and deferred first fetch
+
+    private static func cacheFileURL() -> URL {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("cc-stats-vm-cache-\(UUID().uuidString)", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir.appendingPathComponent("last-usage.json")
+    }
+
+    private static let consumerFixture = """
+    {
+        "five_hour": { "utilization": 42.0, "resets_at": "2026-03-22T12:00:00+00:00" },
+        "seven_day": { "utilization": 17.0, "resets_at": "2026-03-27T12:00:00+00:00" },
+        "extra_usage": { "is_enabled": false, "monthly_limit": null, "used_credits": null, "utilization": null }
+    }
+    """.data(using: .utf8)!
+
+    @Test("Constructor hydrates usage and lastUpdated from cache")
+    @MainActor
+    func constructorHydratesFromCache() async throws {
+        let url = Self.cacheFileURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let cache = UsageResponseCache(fileURL: url)
+
+        let cachedResponse = UsageResponse(
+            fiveHour: UsageBucket(utilization: 55.0, resetsAt: nil),
+            sevenDay: UsageBucket(utilization: 20.0, resetsAt: nil),
+            sevenDaySonnet: nil,
+            sevenDayOpus: nil,
+            extraUsage: nil
+        )
+        let fetchedAt = Date(timeIntervalSinceNow: -60)
+        cache.save(CachedUsageResponse(fetchedAt: fetchedAt, response: cachedResponse))
+
+        let vm = UsageViewModel(
+            apiClient: AnthropicAPIClient(),
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            cache: cache
+        )
+
+        #expect(vm.usage?.fiveHour?.utilization == 55.0)
+        #expect(vm.lastUpdated != nil)
+        #expect(vm.menuBarText == "55%")
+    }
+
+    @Test("Fresh cache defers the first automatic fetch")
+    @MainActor
+    func freshCacheDefersFirstFetch() async throws {
+        let url = Self.cacheFileURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let cache = UsageResponseCache(fileURL: url)
+
+        let cachedResponse = UsageResponse(
+            fiveHour: UsageBucket(utilization: 55.0, resetsAt: nil),
+            sevenDay: nil,
+            sevenDaySonnet: nil,
+            sevenDayOpus: nil,
+            extraUsage: nil
+        )
+        // Age = 60s, polling interval = 300s → deferred ~240s, well beyond the test window.
+        cache.save(CachedUsageResponse(
+            fetchedAt: Date(timeIntervalSinceNow: -60),
+            response: cachedResponse
+        ))
+
+        let counter = FetchCounter()
+        let mockSession = MockURLSession { _ in
+            counter.increment()
+            return (Self.consumerFixture, HTTPURLResponse(
+                url: URL(string: "https://api.anthropic.com/api/oauth/usage")!,
+                statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let vm = UsageViewModel(
+            apiClient: AnthropicAPIClient(session: mockSession),
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            pollingInterval: 300,
+            cache: cache
+        )
+
+        vm.startPolling()
+        try await Task.sleep(for: .milliseconds(300))
+        vm.stopPolling()
+
+        #expect(counter.value == 0)
+        // Cache-hydrated state should still be visible.
+        #expect(vm.menuBarText == "55%")
+    }
+
+    @Test("Stale cache (age > pollingInterval) triggers immediate fetch")
+    @MainActor
+    func staleCacheTriggersImmediateFetch() async throws {
+        let url = Self.cacheFileURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let cache = UsageResponseCache(fileURL: url)
+
+        let cachedResponse = UsageResponse(
+            fiveHour: UsageBucket(utilization: 10.0, resetsAt: nil),
+            sevenDay: nil,
+            sevenDaySonnet: nil,
+            sevenDayOpus: nil,
+            extraUsage: nil
+        )
+        // Age = 10 minutes, polling interval = 0.5s → cache is stale.
+        cache.save(CachedUsageResponse(
+            fetchedAt: Date(timeIntervalSinceNow: -600),
+            response: cachedResponse
+        ))
+
+        let counter = FetchCounter()
+        let mockSession = MockURLSession { _ in
+            counter.increment()
+            return (Self.consumerFixture, HTTPURLResponse(
+                url: URL(string: "https://api.anthropic.com/api/oauth/usage")!,
+                statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let vm = UsageViewModel(
+            apiClient: AnthropicAPIClient(session: mockSession),
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            pollingInterval: 0.5,
+            cache: cache
+        )
+
+        vm.startPolling()
+        try await Task.sleep(for: .milliseconds(200))
+        vm.stopPolling()
+
+        #expect(counter.value >= 1)
+        #expect(vm.menuBarText == "42%")
+    }
+
+    @Test("Successful fetch writes cache file")
+    @MainActor
+    func successfulFetchWritesCache() async throws {
+        let url = Self.cacheFileURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let cache = UsageResponseCache(fileURL: url)
+
+        let mockSession = MockURLSession { _ in
+            (Self.consumerFixture, HTTPURLResponse(
+                url: URL(string: "https://api.anthropic.com/api/oauth/usage")!,
+                statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let vm = UsageViewModel(
+            apiClient: AnthropicAPIClient(session: mockSession),
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            cache: cache
+        )
+
+        await vm.refresh()
+
+        let loaded = cache.load()
+        #expect(loaded != nil)
+        #expect(loaded?.response.fiveHour?.utilization == 42.0)
+    }
+
+    @Test("signOut clears cache file")
+    @MainActor
+    func signOutClearsCache() async throws {
+        let url = Self.cacheFileURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let cache = UsageResponseCache(fileURL: url)
+
+        let mockSession = MockURLSession { _ in
+            (Self.consumerFixture, HTTPURLResponse(
+                url: URL(string: "https://api.anthropic.com/api/oauth/usage")!,
+                statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        }
+
+        let vm = UsageViewModel(
+            apiClient: AnthropicAPIClient(session: mockSession),
+            credentialProvider: { OAuthCredential.mock(accessToken: "token") },
+            cache: cache
+        )
+
+        await vm.refresh()
+        #expect(cache.load() != nil)
+
+        vm.signOut()
+        #expect(cache.load() == nil)
     }
 }
 

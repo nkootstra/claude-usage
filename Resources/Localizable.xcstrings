@@ -1,510 +1,56 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "Loading..." : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Laden..." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cargando..." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Chargement..." } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Laden..." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Carregando..." } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "A carregar..." } }
-      }
-    },
-    "5-Hour" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "5-Stunden" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "5 horas" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "5 heures" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "5-uur" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "5 horas" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "5 horas" } }
-      }
-    },
-    "7-Day" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "7-Tage" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "7 d\u00edas" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "7 jours" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "7-dagen" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "7 dias" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "7 dias" } }
-      }
-    },
-    "Monthly Spend" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Monatliche Ausgaben" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Gastos mensuales" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "D\u00e9penses mensuelles" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Maandelijkse uitgaven" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Gastos mensais" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Despesas mensais" } }
-      }
-    },
-    "Extra Usage" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zusatzverbrauch" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Uso adicional" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Surplus" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Extra verbruik" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Uso adicional" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Uso adicional" } }
-      }
-    },
-    "Poll interval" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abrufintervall" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Intervalo de consulta" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Intervalle de mise \u00e0 jour" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Ophaalinterval" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Intervalo de consulta" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Intervalo de consulta" } }
-      }
-    },
-    "Launch at login" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Beim Anmelden starten" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir al iniciar sesi\u00f3n" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Lancer \u00e0 la connexion" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Open bij inloggen" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Iniciar ao fazer login" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Iniciar ao entrar" } }
-      }
-    },
-    "Notify at 80%" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bei 80% benachrichtigen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Avisar al 80%" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notifier \u00e0 80%" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Melding bij 80%" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a 80%" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a 80%" } }
-      }
-    },
-    "Notify at 95%" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bei 95% benachrichtigen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Avisar al 95%" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notifier \u00e0 95%" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Melding bij 95%" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a 95%" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a 95%" } }
-      }
-    },
-    "Sign Out" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abmelden" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cerrar sesi\u00f3n" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "D\u00e9connexion" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Uitloggen" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sair" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Terminar sess\u00e3o" } }
-      }
-    },
-    "Quit" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Beenden" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Salir" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Quitter" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Stop" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sair" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Sair" } }
-      }
-    },
-    "Sign in to track your Claude usage" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Melde dich an, um dein Claude-Verbrauch zu sehen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Inicia sesi\u00f3n para ver tu uso de Claude" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connectez-vous pour suivre votre consommation Claude" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Log in om je Claude-verbruik te zien" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entre para acompanhar seu uso do Claude" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Inicie sess\u00e3o para ver a sua utiliza\u00e7\u00e3o do Claude" } }
-      }
-    },
-    "Sign in with Claude" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Mit Claude anmelden" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Iniciar sesi\u00f3n con Claude" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se connecter avec Claude" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Inloggen met Claude" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entrar com Claude" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Iniciar sess\u00e3o com Claude" } }
-      }
-    },
-    "Paste the authorization code:" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Autorisierungscode einf\u00fcgen:" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Pega el c\u00f3digo de autorizaci\u00f3n:" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Collez le code d\u2019autorisation :" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Plak de autorisatiecode:" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cole o c\u00f3digo de autoriza\u00e7\u00e3o:" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Cole o c\u00f3digo de autoriza\u00e7\u00e3o:" } }
-      }
-    },
-    "Code" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Code" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "C\u00f3digo" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Code" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Code" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "C\u00f3digo" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "C\u00f3digo" } }
-      }
-    },
-    "Submit" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Absenden" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Enviar" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Envoyer" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Versturen" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Enviar" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Enviar" } }
-      }
-    },
-    "History" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Verlauf" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Historial" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Historique" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Verloop" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Hist\u00f3rico" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Hist\u00f3rico" } }
-      }
-    },
-    "Not enough data yet \u2014 check back after a few polls" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Noch nicht genug Daten \u2014 schau nach ein paar Abfragen nochmal" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "A\u00fan no hay suficientes datos \u2014 vuelve despu\u00e9s de algunas consultas" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pas encore assez de donn\u00e9es \u2014 revenez apr\u00e8s quelques mises \u00e0 jour" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Nog niet genoeg data \u2014 kom terug na een paar updates" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Dados insuficientes \u2014 volte ap\u00f3s algumas consultas" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Dados insuficientes \u2014 volte ap\u00f3s algumas consultas" } }
-      }
-    },
-    "Export CSV" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "CSV exportieren" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Exportar CSV" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Exporter CSV" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "CSV exporteren" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Exportar CSV" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Exportar CSV" } }
-      }
-    },
-    "Refresh" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktualisieren" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Actualizar" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Actualiser" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Vernieuwen" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Atualizar" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Atualizar" } }
-      }
-    },
-    "Settings" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Einstellungen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Configuraci\u00f3n" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Param\u00e8tres" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Instellingen" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Configura\u00e7\u00f5es" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Defini\u00e7\u00f5es" } }
-      }
-    },
-    "Show as percentage" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Als Prozent anzeigen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar como porcentaje" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher en pourcentage" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Toon als percentage" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar como porcentagem" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar como percentagem" } }
-      }
-    },
-    "Show as dollars" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Als Dollar anzeigen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar en d\u00f3lares" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher en dollars" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Toon als dollars" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar em d\u00f3lares" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar em d\u00f3lares" } }
-      }
-    },
-    "resetting..." : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "wird zur\u00fcckgesetzt..." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "reiniciando..." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "r\u00e9initialise..." } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "wordt gereset..." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "reiniciando..." } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "a reiniciar..." } }
-      }
-    },
-    "Auto" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Auto" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Auto" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Auto" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Auto" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Auto" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Auto" } }
-      }
-    },
-    "7d" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "7T" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "7d" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "7j" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "7d" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "7d" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "7d" } }
-      }
-    },
-    "30d" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "30T" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "30d" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "30j" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "30d" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "30d" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "30d" } }
-      }
-    },
-    "notification.threshold.title" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Claude-Verbrauchsmeldung" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Claude Usage Alert" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Alerta de uso de Claude" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Alerte Claude" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Claude-gebruiksmelding" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Alerta de uso do Claude" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Alerta de uso do Claude" } }
-      }
-    },
-    "notification.threshold.body %lld %lld" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "5-Stunden-Verbrauch bei %1$lld%% (Grenzwert: %2$lld%%)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "5-hour usage at %1$lld%% (threshold: %2$lld%%)" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Uso de 5 horas al %1$lld%% (l\u00edmite: %2$lld%%)" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Conso. 5h \u00e0 %1$lld%% (seuil : %2$lld%%)" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "5-uursverbruik op %1$lld%% (grens: %2$lld%%)" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Uso de 5 horas em %1$lld%% (limite: %2$lld%%)" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Uso de 5 horas em %1$lld%% (limite: %2$lld%%)" } }
-      }
-    },
-    "notification.burnRate.title" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Claude-Verbrauchswarnung" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Claude Usage Warning" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aviso de uso de Claude" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Avertissement Claude" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Claude-gebruikswaarschuwing" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Aviso de uso do Claude" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Aviso de uso do Claude" } }
-      }
-    },
-    "notification.burnRate.body %@ %lld" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bei aktuellem Tempo wird das %1$@-Limit in ~%2$lld Minuten erreicht" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "At current pace, you'll hit the %1$@ limit in ~%2$lld minutes" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Al ritmo actual, alcanzar\u00e1s el l\u00edmite de %1$@ en ~%2$lld minutos" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Au rythme actuel, la limite %1$@ sera atteinte dans ~%2$lld min" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Op dit tempo bereik je de %1$@-limiet in ~%2$lld minuten" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "No ritmo atual, o limite de %1$@ ser\u00e1 atingido em ~%2$lld minutos" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Ao ritmo atual, o limite de %1$@ ser\u00e1 atingido em ~%2$lld minutos" } }
-      }
-    },
-    "of %@ limit" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "von %@ Limit" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "de un l\u00edmite de %@" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "sur un plafond de %@" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "van %@ limiet" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "de um limite de %@" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "de um limite de %@" } }
-      }
-    },
-    "Polling" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abfrage" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Consulta" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Interrogation" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Ophalen" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Consulta" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Consulta" } }
-      }
-    },
-    "Appearance" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Darstellung" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Apariencia" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Apparence" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Weergave" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Apar\u00eancia" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Apar\u00eancia" } }
-      }
-    },
-    "Icon only" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Nur Symbol" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Solo icono" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ic\u00f4ne seule" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Alleen icoon" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Apenas \u00edcone" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Apenas \u00edcone" } }
-      }
-    },
-    "Color mode" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Farbmodus" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Modo de color" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Mode couleur" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Kleurmodus" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Modo de cor" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Modo de cor" } }
-      }
-    },
-    "Traffic light" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ampel" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sem\u00e1foro" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Feu tricolore" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Stoplicht" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sem\u00e1foro" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Sem\u00e1foro" } }
-      }
-    },
-    "Single color" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Einfarbig" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Color \u00fanico" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Couleur unique" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Enkele kleur" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cor \u00fanica" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Cor \u00fanica" } }
-      }
-    },
-    "Warning" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Warnung" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aviso" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Attention" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Waarschuwing" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Aviso" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Aviso" } }
-      }
-    },
-    "Critical" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kritisch" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cr\u00edtico" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Critique" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Kritiek" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cr\u00edtico" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Cr\u00edtico" } }
-      }
-    },
-    "Notifications" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Benachrichtigungen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Notificaciones" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notifications" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Meldingen" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Notifica\u00e7\u00f5es" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Notifica\u00e7\u00f5es" } }
-      }
-    },
-    "Warn at" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Warnen bei" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Alerter \u00e0" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Melden bij" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Avisar a" } }
-      }
-    },
-    "Critical at" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kritisch bei" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cr\u00edtico a" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Critique \u00e0" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Kritiek bij" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cr\u00edtico a" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Cr\u00edtico a" } }
-      }
-    },
-    "Ring color thresholds" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Farbschwellen des Rings" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Umbrales de color del anillo" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Seuils de couleur de l'anneau" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Kleurdrempels ring" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Limites de cor do anel" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Limites de cor do anel" } }
-      }
-    },
-    "Notification thresholds" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Benachrichtigungsschwellen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Umbrales de notificaci\u00f3n" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Seuils de notification" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Meldingsdrempels" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Limites de notifica\u00e7\u00e3o" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Limites de notifica\u00e7\u00e3o" } }
-      }
-    },
-    "Cancel" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abbrechen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Annuler" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Annuleren" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } }
-      }
-    },
-    "Paste from clipboard" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aus Zwischenablage einf\u00fcgen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Pegar del portapapeles" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Coller depuis le presse-papiers" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Plakken uit klembord" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Colar da \u00e1rea de transfer\u00eancia" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Colar da \u00e1rea de transfer\u00eancia" } }
-      }
-    },
-    "Retry Now" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Jetzt erneut versuchen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reintentar" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "R\u00e9essayer" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Opnieuw proberen" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Tentar novamente" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Tentar novamente" } }
-      }
-    },
-    "Pin widget" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Widget anheften" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Fijar widget" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "\u00c9pingler le widget" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Widget vastpinnen" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Fixar widget" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Fixar widget" } }
-      }
-    },
-    "Unpin widget" : {
-      "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Widget l\u00f6sen" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Desfijar widget" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "D\u00e9tacher le widget" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Widget losmaken" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Desfixar widget" } },
-        "pt-PT" : { "stringUnit" : { "state" : "translated", "value" : "Desfixar widget" } }
-      }
-    }
+  "sourceLanguage": "en",
+  "strings": {
+    "30d": {},
+    "5-Hour": {},
+    "7-Day": {},
+    "7d": {},
+    "Appearance": {},
+    "Auto": {},
+    "Cancel": {},
+    "Code": {},
+    "Color mode": {},
+    "Critical": {},
+    "Critical at": {},
+    "Export CSV": {},
+    "Extra Usage": {},
+    "History": {},
+    "Icon only": {},
+    "Launch at login": {},
+    "Loading...": {},
+    "Monthly Spend": {},
+    "Not enough data yet — check back after a few polls": {},
+    "Notification thresholds": {},
+    "Notifications": {},
+    "Notify at 80%": {},
+    "Notify at 95%": {},
+    "Paste from clipboard": {},
+    "Paste the authorization code:": {},
+    "Pin widget": {},
+    "Poll interval": {},
+    "Polling": {},
+    "Quit": {},
+    "Refresh": {},
+    "Retry Now": {},
+    "Ring color thresholds": {},
+    "Settings": {},
+    "Show as dollars": {},
+    "Show as percentage": {},
+    "Sign Out": {},
+    "Sign in to track your Claude usage": {},
+    "Sign in with Claude": {},
+    "Single color": {},
+    "Submit": {},
+    "Traffic light": {},
+    "Unpin widget": {},
+    "Warn at": {},
+    "Warning": {},
+    "notification.burnRate.body %@ %lld": {},
+    "notification.burnRate.title": {},
+    "notification.threshold.body %lld %lld": {},
+    "notification.threshold.title": {},
+    "of %@ limit": {},
+    "resetting...": {}
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

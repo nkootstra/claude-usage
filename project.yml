@@ -5,12 +5,6 @@ options:
     macOS: "14.0"
   localizations:
     - en
-    - nl
-    - de
-    - fr
-    - es
-    - pt-PT
-    - pt-BR
 
 settings:
   base:
@@ -32,9 +26,6 @@ packages:
   LaunchAtLogin-Modern:
     url: https://github.com/sindresorhus/LaunchAtLogin-Modern.git
     from: "1.1.0"
-  GRDB:
-    url: https://github.com/groue/GRDB.swift.git
-    from: "7.5.0"
 
 targets:
   ClaudeUsageCore:
@@ -44,8 +35,6 @@ targets:
       - path: Sources/ClaudeUsageCore
     dependencies:
       - package: KeychainAccess
-      - package: GRDB
-        product: GRDB
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.kootstra.claude-usage.core

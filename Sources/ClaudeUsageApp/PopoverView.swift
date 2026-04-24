@@ -1,22 +1,27 @@
 import SwiftUI
 import ClaudeUsageCore
-import UniformTypeIdentifiers
 
 struct MenuContentView: View {
     @ObservedObject var viewModel: UsageViewModel
     var widgetController: FloatingWidgetController?
     @StateObject private var authFlow = AuthFlowState()
-    @State private var exportError: String?
-    @State private var showSettings = false
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+            if viewModel.usage != nil, viewModel.profile != nil {
+                HStack(spacing: 4) {
+                    Spacer()
+                    Text(viewModel.planTier.label)
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(.tertiary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.primary.opacity(0.06), in: Capsule())
+                }
+            }
             if let usage = viewModel.usage {
                 UsageDetailView(usage: usage, creditProjection: viewModel.creditProjection)
-
-                if !viewModel.historyPoints.isEmpty {
-                    UsageChartView(points: viewModel.historyPoints, isEnterprise: viewModel.isEnterprise)
-                }
             } else if authFlow.isAwaitingCode {
                 OAuthCodeEntryView(authFlow: authFlow, viewModel: viewModel)
             } else if let error = viewModel.error {
@@ -27,43 +32,30 @@ struct MenuContentView: View {
                 ProgressView("Loading...")
             }
 
-            // Update banner
-            if let update = viewModel.availableUpdate {
-                HStack(spacing: 6) {
-                    Circle()
-                        .fill(.orange)
-                        .frame(width: 6, height: 6)
-                    Link("v\(update.version) available", destination: update.releaseURL)
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                    Spacer()
-                    Button {
-                        viewModel.dismissUpdate()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 8, weight: .bold))
-                    }
-                    .buttonStyle(.borderless)
-                    .foregroundStyle(.tertiary)
-                }
-            }
-
             // Footer
-            HStack(spacing: 12) {
+            HStack(spacing: 8) {
                 if let lastUpdated = viewModel.lastUpdated {
-                    Text("Updated \(lastUpdated, style: .relative) ago")
+                    Text(lastUpdated, style: .relative)
                         .foregroundStyle(.tertiary)
                         .font(.system(size: 9))
+                        .monospacedDigit()
                 }
-                Spacer()
-                if !viewModel.historyPoints.isEmpty {
-                    Button { exportCSV() } label: {
-                        Image(systemName: "square.and.arrow.up")
+
+                if let update = viewModel.availableUpdate {
+                    Link(destination: update.releaseURL) {
+                        HStack(spacing: 3) {
+                            Circle().fill(.orange).frame(width: 5, height: 5)
+                            Text("v\(update.version)")
+                                .font(.system(size: 9, weight: .medium))
+                                .foregroundStyle(.orange)
+                        }
                     }
-                    .buttonStyle(.borderless)
-                    .foregroundStyle(.secondary)
-                    .help("Export CSV")
+                    .buttonStyle(.plain)
+                    .help("Download update")
                 }
+
+                Spacer()
+
                 if viewModel.usage != nil {
                     Button { Task { await viewModel.refresh() } } label: {
                         Image(systemName: "arrow.clockwise")
@@ -84,39 +76,18 @@ struct MenuContentView: View {
                     }
                 }
                 Button {
-                    showSettings.toggle()
+                    NSApp.activate(ignoringOtherApps: true)
+                    openSettings()
                 } label: {
                     Image(systemName: "gearshape")
                 }
                 .buttonStyle(.borderless)
-                .foregroundStyle(showSettings ? .primary : .secondary)
+                .foregroundStyle(.secondary)
                 .help("Settings")
             }
             .font(.system(size: 12))
-
-            if showSettings {
-                Divider()
-                SettingsView(viewModel: viewModel)
-            }
         }
         .padding(12)
-        .frame(width: 300)
-    }
-
-    private func exportCSV() {
-        let csv = CSVExporter.export(viewModel.historyPoints)
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = "claude-usage.csv"
-        panel.allowedContentTypes = [.commaSeparatedText]
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            do {
-                try csv.write(to: url, atomically: true, encoding: .utf8)
-            } catch {
-                Task { @MainActor in
-                    exportError = "Export failed: \(error.localizedDescription)"
-                }
-            }
-        }
+        .frame(width: 260)
     }
 }

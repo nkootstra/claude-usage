@@ -1,7 +1,7 @@
 import Foundation
 
 public protocol PollingServiceProtocol: AnyObject, Sendable {
-    @MainActor func start(fireImmediately: Bool)
+    @MainActor func start(fireImmediately: Bool, initialDelay: TimeInterval?)
     @MainActor func stop()
     @MainActor func updateInterval(_ seconds: TimeInterval)
 }
@@ -20,10 +20,14 @@ public final class PollingService: PollingServiceProtocol {
         self.pollingInterval = pollingInterval
     }
 
-    public func start(fireImmediately: Bool = true) {
+    public func start(fireImmediately: Bool = true, initialDelay: TimeInterval? = nil) {
         stop()
         pollingTask = Task {
             if fireImmediately {
+                await fetchAndDeliver()
+            } else if let initialDelay, initialDelay > 0 {
+                try? await Task.sleep(for: .seconds(initialDelay))
+                guard !Task.isCancelled else { return }
                 await fetchAndDeliver()
             }
             while !Task.isCancelled {

@@ -8,15 +8,21 @@ public final class UsageViewModel: ObservableObject {
     @Published public var error: UsageError?
     @Published public var lastUpdated: Date?
     @Published public private(set) var currentBackoff: TimeInterval?
-    @Published public var historyPoints: [UsageDataPoint] = []
     @Published public var creditProjection: CreditBurnProjection?
     @Published public var availableUpdate: UpdateInfo?
+    @Published public var profile: ProfileResponse?
+
+    public var planTier: PlanTier {
+        PlanTier.derive(profile: profile, isEnterprise: isEnterprise)
+    }
 
     private let client: TokenRefreshingClient
     private let pollingService: PollingService
-    private let historyService: HistoryServiceProtocol?
-    private let notificationCoordinator: NotificationCoordinatorProtocol?
+    private let notificationCoordinator: NotificationCoordinator?
     private let updateService: UpdateService
+    private let cache: UsageResponseCache?
+    private let pollingInterval: TimeInterval
+    private var cachedFetchedAt: Date?
 
     public var isEnterprise: Bool {
         usage?.fiveHour == nil && usage?.sevenDay == nil
@@ -38,15 +44,22 @@ public final class UsageViewModel: ObservableObject {
         credentialProvider: @escaping CredentialProvider,
         pollingInterval: TimeInterval = 300,
         notificationService: NotificationService? = nil,
-        historyStore: UsageHistoryStore? = nil,
-        updateChecker: UpdateChecker = UpdateChecker()
+        updateChecker: UpdateChecker = UpdateChecker(),
+        cache: UsageResponseCache? = UsageResponseCache()
     ) {
         let client = TokenRefreshingClient(apiClient: apiClient, credentialProvider: credentialProvider)
         self.client = client
         self.pollingService = PollingService(client: client, pollingInterval: pollingInterval)
-        self.historyService = historyStore.map { HistoryService(store: $0) }
         self.notificationCoordinator = notificationService.map { NotificationCoordinator(notificationService: $0) }
         self.updateService = UpdateService(checker: updateChecker)
+        self.cache = cache
+        self.pollingInterval = pollingInterval
+
+        if let cached = cache?.load() {
+            self.usage = cached.response
+            self.lastUpdated = cached.fetchedAt
+            self.cachedFetchedAt = cached.fetchedAt
+        }
 
         pollingService.onResult = { @MainActor [weak self] result in
             await self?.handleFetchResult(result)
@@ -57,7 +70,17 @@ public final class UsageViewModel: ObservableObject {
     }
 
     public func startPolling() {
-        pollingService.start()
+        if let fetchedAt = cachedFetchedAt {
+            let age = Date().timeIntervalSince(fetchedAt)
+            cachedFetchedAt = nil
+            if age < pollingInterval {
+                pollingService.start(fireImmediately: false, initialDelay: pollingInterval - age)
+            } else {
+                pollingService.start()
+            }
+        } else {
+            pollingService.start()
+        }
         updateService.start()
     }
 
@@ -83,8 +106,18 @@ public final class UsageViewModel: ObservableObject {
         error = .noCredential
         lastUpdated = nil
         currentBackoff = nil
-        historyPoints = []
         creditProjection = nil
+        profile = nil
+        cachedFetchedAt = nil
+        cache?.clear()
+        notificationCoordinator?.reset()
+    }
+
+    private func refreshProfileIfNeeded() async {
+        if profile != nil { return }
+        if let fetched = try? await client.fetchProfile() {
+            profile = fetched
+        }
     }
 
     /// Single manual refresh — used by UI "refresh" button and tests.
@@ -106,34 +139,25 @@ public final class UsageViewModel: ObservableObject {
         case .success(let fetchResult):
             usage = fetchResult.usage
             error = nil
-            lastUpdated = Date()
+            let now = Date()
+            lastUpdated = now
             currentBackoff = nil
+            cachedFetchedAt = nil
             pollingService.resetBackoff()
+            cache?.save(CachedUsageResponse(fetchedAt: now, response: fetchResult.usage))
 
-            // Record history
-            if let historyService {
-                await historyService.record(from: fetchResult.usage)
-                historyPoints = await historyService.loadPoints()
-            }
+            await refreshProfileIfNeeded()
 
-            // Notifications + credit projection
             if let notificationCoordinator {
-                let evaluation = notificationCoordinator.evaluate(
-                    usage: fetchResult.usage,
-                    historyPoints: historyPoints
+                creditProjection = notificationCoordinator.evaluate(usage: fetchResult.usage).creditProjection
+            } else if let extra = fetchResult.usage.extraUsage, extra.isEnabled,
+                      let used = extra.usedCreditsAmount, let limit = extra.monthlyLimitAmount {
+                creditProjection = BurnRateCalculator.projectCredits(
+                    usedDollars: used,
+                    limitDollars: limit
                 )
-                creditProjection = evaluation.creditProjection
             } else {
-                // Compute credit projection even without notification service
-                if let extra = fetchResult.usage.extraUsage, extra.isEnabled,
-                   let used = extra.usedCreditsAmount, let limit = extra.monthlyLimitAmount {
-                    creditProjection = BurnRateCalculator.projectCredits(
-                        usedDollars: used,
-                        limitDollars: limit
-                    )
-                } else {
-                    creditProjection = nil
-                }
+                creditProjection = nil
             }
 
         case .failure(let err):
