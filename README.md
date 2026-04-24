@@ -8,19 +8,17 @@ A macOS menubar app that tracks your Claude (Code) usage in real time.
 
 ## Features
 
-- **Menubar indicator** — circular ring gauge with percentage, always visible
+- **Dual-percent menubar** — consumer plans show `5h% · 7d%` inline, each color-coded by threshold. Enterprise plans keep the ring gauge with monthly spend.
 - **Usage cards** — 5-hour, 7-day, Sonnet, and Opus utilization at a glance
 - **Enterprise support** — monthly credit spend with dollar/percentage toggle and burn rate projection
-- **Usage history** — area chart with adaptive time range (auto/7d/30d), stored in SQLite
 - **Burn rate alerts** — notification when projected to hit limit within 60 minutes
 - **Threshold notifications** — configurable alerts at 80% and 95% usage
-- **CSV export** — export full history for analysis
 - **OAuth sign-in** — authenticate via your browser with your Claude account
 - **Claude Code auto-detect** — picks up credentials from Claude Code if installed (file-based, no keychain prompts)
 - **Token refresh** — keeps your session alive without re-authenticating
 - **Auto-polling** — configurable interval (1/5/15/30 min) with exponential backoff
+- **Response cache** — hydrates the menu bar instantly on launch and defers the first poll when the cached response is still fresh, so rapid restarts don't stack API calls
 - **Sleep/wake aware** — pauses polling on sleep, resumes on wake
-- **Multi-language** — English, Dutch, German, French, Spanish, Portuguese (BR & PT)
 - **Light & dark mode** — system colors throughout
 
 ## Installation
@@ -78,7 +76,7 @@ The app polls `https://api.anthropic.com/api/oauth/usage` on a configurable inte
 | Opus | 7-day usage for Opus models specifically |
 | Credits | Enterprise monthly spend vs limit |
 
-Usage history is stored locally in `~/.config/claude-usage/history.db` (SQLite) with 30-day retention.
+The last successful response is cached at `~/Library/Application Support/cc-stats/last-usage.json` so the menu bar can render immediately on relaunch without a network round-trip. Delete that file if you want to force a clean fetch.
 
 ## Configuration
 
