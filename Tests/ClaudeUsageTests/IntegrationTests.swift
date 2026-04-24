@@ -215,8 +215,10 @@ struct IntegrationTests {
 
         vm.startPolling()
         try await Task.sleep(for: .milliseconds(400))
-        let countAtStop = counter.value
         vm.stopPolling()
+        // Let any in-flight fetch drain before snapshotting the counter.
+        try await Task.sleep(for: .milliseconds(150))
+        let countAtStop = counter.value
 
         #expect(countAtStop >= 2)
 
