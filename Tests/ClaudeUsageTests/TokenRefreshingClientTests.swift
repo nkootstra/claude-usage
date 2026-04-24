@@ -131,27 +131,38 @@ struct TokenRefreshingClientTests {
 
     // MARK: - Edge cases
 
-    @Test("Provider returns same expired token twice — still calls API")
+    @Test("Provider returns same expired token twice with no refresh token — fails fast")
     func sameExpiredTokenTwice() async throws {
         let expiredMs = Int64(Date().timeIntervalSince1970 * 1000) - 1000
+        let apiCounter = FetchCounter()
 
-        let mockSession = MockURLSession { _ in
+        let mockSession = MockURLSession { request in
+            apiCounter.increment()
             return (self.fixture, HTTPURLResponse(
-                url: URL(string: "https://api.anthropic.com/api/oauth/usage")!,
-                statusCode: 200, httpVersion: nil, headerFields: nil)!)
+                url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
         }
 
         let client = TokenRefreshingClient(
             apiClient: AnthropicAPIClient(session: mockSession),
             credentialProvider: {
-                // Always returns expired token — still usable if API accepts it
+                // Always returns expired token — no refresh token means we can't
+                // even try to refresh, so the usage call would be wasted.
                 OAuthCredential.mock(accessToken: "expired", expiresAt: expiredMs)
             }
         )
 
-        // Should still attempt the API call with the expired token
-        let result = try await client.fetchUsage()
-        #expect(result.usage.fiveHour?.utilization == 42.0)
+        do {
+            _ = try await client.fetchUsage()
+            Issue.record("Expected unauthorized")
+        } catch let error as TokenRefreshingClientError {
+            if case .unauthorized = error {
+                // Correct — no refresh path and token is expired → bail.
+            } else {
+                Issue.record("Expected unauthorized, got \(error)")
+            }
+        }
+
+        #expect(apiCounter.value == 0)
     }
 
     @Test("Fresh token also gets 401 — throws unauthorized")
@@ -346,5 +357,56 @@ struct TokenRefreshingClientTests {
         // Should have called: 1) usage (401), 2) token refresh, 3) usage (200)
         #expect(apiCounter.value == 3)
         #expect(result.usage.fiveHour?.utilization == 42.0)
+    }
+
+    @Test("Expired token + failed refresh + same credential → fails fast as unauthorized")
+    func expiredTokenFailsFastWhenRefreshDead() async throws {
+        let expiredMs = Int64(Date().timeIntervalSince1970 * 1000) - 1000
+        let apiCounter = FetchCounter()
+
+        let mockSession = MockURLSession { request in
+            apiCounter.increment()
+            let urlPath = request.url?.path ?? ""
+
+            // Refresh endpoint returns 400 (refresh token invalid)
+            if urlPath.contains("/oauth/token") {
+                return (Data(), HTTPURLResponse(
+                    url: request.url!, statusCode: 400,
+                    httpVersion: nil, headerFields: nil)!)
+            }
+
+            // Should never reach the usage endpoint with a known-dead credential
+            Issue.record("Should not call usage endpoint when refresh is dead")
+            return (Data(), HTTPURLResponse(
+                url: request.url!, statusCode: 429,
+                httpVersion: nil, headerFields: ["Retry-After": "120"])!)
+        }
+
+        let client = TokenRefreshingClient(
+            apiClient: AnthropicAPIClient(session: mockSession),
+            credentialProvider: {
+                // Always returns the same expired credential — simulates a keychain
+                // whose refresh token is dead and no file-based fallback exists.
+                OAuthCredential.mock(
+                    accessToken: "expired",
+                    refreshToken: "dead-refresh",
+                    expiresAt: expiredMs
+                )
+            }
+        )
+
+        do {
+            _ = try await client.fetchUsage()
+            Issue.record("Expected unauthorized")
+        } catch let error as TokenRefreshingClientError {
+            if case .unauthorized = error {
+                // Correct — we bailed out before hitting the usage endpoint.
+            } else {
+                Issue.record("Expected unauthorized, got \(error)")
+            }
+        }
+
+        // Only the refresh attempt should have been made.
+        #expect(apiCounter.value == 1)
     }
 }

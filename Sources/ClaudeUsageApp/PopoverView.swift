@@ -20,10 +20,15 @@ struct MenuContentView: View {
                         .background(Color.primary.opacity(0.06), in: Capsule())
                 }
             }
-            if let usage = viewModel.usage {
-                UsageDetailView(usage: usage, creditProjection: viewModel.creditProjection)
-            } else if authFlow.isAwaitingCode {
+            if authFlow.isAwaitingCode {
                 OAuthCodeEntryView(authFlow: authFlow, viewModel: viewModel)
+            } else if let usage = viewModel.usage {
+                if let error = viewModel.error {
+                    StaleDataBanner(error: error, authFlow: authFlow) {
+                        Task { await viewModel.refresh() }
+                    }
+                }
+                UsageDetailView(usage: usage, creditProjection: viewModel.creditProjection)
             } else if let error = viewModel.error {
                 UsageErrorView(error: error, authFlow: authFlow) {
                     Task { await viewModel.refresh() }
@@ -89,5 +94,64 @@ struct MenuContentView: View {
         }
         .padding(12)
         .frame(width: 260)
+    }
+}
+
+/// Inline warning shown above cached usage when the most recent fetch failed.
+/// Without this the detail view hides auth/rate-limit errors behind stale data.
+private struct StaleDataBanner: View {
+    let error: UsageError
+    @ObservedObject var authFlow: AuthFlowState
+    let onRetry: () -> Void
+
+    private var needsReauth: Bool { error.isAuthError }
+
+    private var message: String {
+        switch error {
+        case .noCredential, .unauthorized: return "Session expired — data may be stale"
+        case .rateLimited: return "Rate limited — showing cached data"
+        case .networkError: return "Offline — showing cached data"
+        case .unknown: return "Can't refresh — showing cached data"
+        }
+    }
+
+    private var tint: Color {
+        switch error {
+        case .noCredential, .unauthorized: return .orange
+        case .rateLimited: return .yellow
+        case .networkError, .unknown: return .red
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 10))
+            Text(message)
+                .font(.system(size: 10))
+                .lineLimit(1)
+                .truncationMode(.tail)
+            Spacer(minLength: 4)
+            if needsReauth {
+                Button("Sign in") { authFlow.startFlow() }
+                    .buttonStyle(.borderless)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(tint)
+            } else {
+                Button("Retry") { onRetry() }
+                    .buttonStyle(.borderless)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(tint)
+            }
+        }
+        .foregroundStyle(tint)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 6))
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .strokeBorder(tint.opacity(0.3), lineWidth: 0.5)
+        )
+        .accessibilityElement(children: .combine)
     }
 }
