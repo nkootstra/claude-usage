@@ -113,4 +113,11 @@ public enum CredentialStore {
         try? keychain.remove("credentials")
         isSignedOut = true
     }
+
+    /// Removes our stored credential without flagging the user as signed out.
+    /// Used when a refresh attempt proves the stored tokens are dead, so the
+    /// next read can fall through to the file-based credential sources.
+    public static func clearStoredCredential() {
+        try? keychain.remove("credentials")
+    }
 }

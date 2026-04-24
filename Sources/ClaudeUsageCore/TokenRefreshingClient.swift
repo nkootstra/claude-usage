@@ -32,7 +32,16 @@ public final class TokenRefreshingClient: Sendable {
             if let refreshed = await refreshOwnToken(credential) {
                 credential = refreshed
             } else {
-                credential = try resolveCredential()
+                let reread = try resolveCredential()
+                // If re-read returns the same (still-expired) token, sending it
+                // to the API just burns a request on a known-dead credential —
+                // and the server often responds with 429, trapping us in a
+                // backoff loop. Surface as unauthorized so the UI can prompt
+                // re-auth instead.
+                if reread.accessToken == credential.accessToken && reread.isExpired {
+                    throw TokenRefreshingClientError.unauthorized
+                }
+                credential = reread
             }
         }
 
@@ -84,6 +93,14 @@ public final class TokenRefreshingClient: Sendable {
             )
             // Re-read from store so the credential is fully formed
             return credentialProvider()
+        } catch APIError.unauthorized {
+            // Refresh token was rejected — drop it so we don't retry forever.
+            CredentialStore.clearStoredCredential()
+            return nil
+        } catch APIError.serverError(let code) where code == 400 {
+            // 400 on the refresh_token grant means the token itself is invalid.
+            CredentialStore.clearStoredCredential()
+            return nil
         } catch {
             return nil
         }
