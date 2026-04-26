@@ -47,6 +47,12 @@ struct UsageDetailView: View {
                 }
             }
             .padding(.top, 4)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
+            )
+            .padding(.top, 6)
         }
     }
 
@@ -254,17 +260,21 @@ struct UsageRow: View {
     let color: Color
 
     var body: some View {
-        HStack(spacing: 8) {
-            Text(label)
-                .font(.system(size: 11))
-                .foregroundStyle(.secondary)
-            Spacer(minLength: 8)
+        HStack(alignment: .center, spacing: 10) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
 
-            if let meta {
-                Text(meta)
-                    .font(.system(size: 9))
-                    .foregroundStyle(.tertiary)
+                if let meta {
+                    Text(meta)
+                        .font(.system(size: 9))
+                        .foregroundStyle(.tertiary)
+                }
             }
+            .frame(minWidth: 78, alignment: .leading)
+
+            Spacer(minLength: 8)
 
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
@@ -275,7 +285,8 @@ struct UsageRow: View {
                         .frame(width: max(0, geo.size.width * min(max(pct, 0), 1.0)))
                 }
             }
-            .frame(width: 60, height: 3)
+            .frame(maxWidth: 120)
+            .frame(height: 3)
 
             Text(percentText)
                 .font(.system(size: 10))
@@ -283,10 +294,10 @@ struct UsageRow: View {
                 .monospacedDigit()
                 .frame(width: 30, alignment: .trailing)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, meta == nil ? 5 : 6)
         .padding(.horizontal, 10)
         .accessibilityElement(children: .combine)
-        .accessibilityValue(Text(percentText))
+        .accessibilityValue(Text([percentText, meta].compactMap(\.self).joined(separator: ", ")))
     }
 
     static func bucket(label: LocalizedStringKey, bucket: UsageBucket) -> UsageRow {
@@ -296,7 +307,7 @@ struct UsageRow: View {
             label: label,
             pct: bucket.utilization / 100.0,
             percentText: "\(Int(bucket.utilization))%",
-            meta: nil,
+            meta: bucket.resetCaption(),
             color: thresholdColor(for: bucket.utilization, warning: warning, critical: critical)
         )
     }
@@ -318,14 +329,5 @@ struct UsageRow: View {
 // MARK: - Reset time helper
 
 private func resetCaption(for bucket: UsageBucket) -> String? {
-    guard let date = bucket.resetsAtDate else { return nil }
-    let remaining = date.timeIntervalSinceNow
-    if remaining <= 0 { return "resetting…" }
-    let totalMinutes = Int(remaining) / 60
-    let days = totalMinutes / 1440
-    let hours = (totalMinutes % 1440) / 60
-    let mins = totalMinutes % 60
-    if days > 0 { return "resets in \(days)d \(hours)h" }
-    if hours > 0 { return "resets in \(hours)h \(mins)m" }
-    return "resets in \(mins)m"
+    bucket.resetCaption()
 }

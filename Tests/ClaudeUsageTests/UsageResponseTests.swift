@@ -187,6 +187,17 @@ struct UsageResponseTests {
         #expect(response.fiveHour?.resetsAtDate != nil)
     }
 
+    @Test("Formats remaining reset time for row metadata")
+    func resetCaptionFormatsRelativeTime() {
+        let resetDate = Date(timeIntervalSinceReferenceDate: 60 * 60 * 26 + 60 * 15)
+        let bucket = UsageBucket(
+            utilization: 65.0,
+            resetsAt: ISO8601DateFormatter().string(from: resetDate)
+        )
+
+        #expect(bucket.resetCaption(now: Date(timeIntervalSinceReferenceDate: 0)) == "resets in 1d 2h")
+    }
+
     // MARK: - Edge cases: extra usage
 
     @Test("Extra usage with zero credits used")
