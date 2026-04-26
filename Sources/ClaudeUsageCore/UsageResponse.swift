@@ -33,6 +33,19 @@ public struct UsageBucket: Codable, Sendable {
         formatter.formatOptions = [.withInternetDateTime]
         return formatter.date(from: resetsAt)
     }
+
+    public func resetCaption(now: Date = Date()) -> String? {
+        guard let date = resetsAtDate else { return nil }
+        let remaining = date.timeIntervalSince(now)
+        if remaining <= 0 { return "resetting..." }
+        let totalMinutes = Int(remaining) / 60
+        let days = totalMinutes / 1440
+        let hours = (totalMinutes % 1440) / 60
+        let mins = totalMinutes % 60
+        if days > 0 { return "resets in \(days)d \(hours)h" }
+        if hours > 0 { return "resets in \(hours)h \(mins)m" }
+        return "resets in \(mins)m"
+    }
 }
 
 public struct ExtraUsage: Codable, Sendable {
