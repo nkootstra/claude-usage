@@ -6,16 +6,6 @@ struct ClaudeUsageApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
-        MenuBarExtra {
-            MenuContentView(
-                viewModel: appDelegate.viewModel,
-                widgetController: appDelegate.widgetController
-            )
-        } label: {
-            MenuBarLabel(viewModel: appDelegate.viewModel)
-        }
-        .menuBarExtraStyle(.window)
-
         Settings {
             SettingsRootView(viewModel: appDelegate.viewModel)
         }
@@ -34,9 +24,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     )
 
     lazy var widgetController = FloatingWidgetController(viewModel: viewModel)
+    private var statusBarController: StatusBarController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApplication.shared.setActivationPolicy(.accessory)
+        statusBarController = StatusBarController(
+            viewModel: viewModel,
+            widgetController: widgetController
+        )
         notificationService.requestPermission()
         viewModel.startPolling()
 
