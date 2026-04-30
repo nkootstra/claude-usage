@@ -3,15 +3,19 @@ import UserNotifications
 
 public final class NotificationService: Sendable {
     private let notifiedKey = "claude-usage.notified.thresholds"
+    // UserDefaults is documented thread-safe but isn't marked Sendable in Swift 6.
+    nonisolated(unsafe) private let defaults: UserDefaults
 
     /// Returns active thresholds based on user settings
     private var thresholds: [Double] {
-        let warning = UserDefaults.standard.object(forKey: "warningThreshold") as? Double ?? 50
-        let critical = UserDefaults.standard.object(forKey: "criticalThreshold") as? Double ?? 80
+        let warning = defaults.object(forKey: "warningThreshold") as? Double ?? 50
+        let critical = defaults.object(forKey: "criticalThreshold") as? Double ?? 80
         return [warning, critical]
     }
 
-    public init() {}
+    public init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
 
     public func requestPermission() {
         guard Bundle.main.bundleIdentifier != nil else { return }
@@ -19,20 +23,24 @@ public final class NotificationService: Sendable {
     }
 
     public func checkAndNotify(fiveHourPct: Double) {
-        let notified = UserDefaults.standard.array(forKey: notifiedKey) as? [Double] ?? []
+        let enabled = defaults.object(forKey: "notificationThresholdAlerts") as? Bool ?? true
+        guard enabled else { return }
+
+        // Track the persisted set in-place; reading once per iteration would
+        // miss earlier appends and let the per-iteration overwrite drop them.
+        var notified = defaults.array(forKey: notifiedKey) as? [Double] ?? []
 
         for threshold in thresholds {
             if fiveHourPct >= threshold && !notified.contains(threshold) {
                 sendNotification(threshold: threshold, current: fiveHourPct)
-                var updated = notified
-                updated.append(threshold)
-                UserDefaults.standard.set(updated, forKey: notifiedKey)
+                notified.append(threshold)
+                defaults.set(notified, forKey: notifiedKey)
             }
         }
 
         // Reset notifications when usage drops below lowest threshold
         if fiveHourPct < (thresholds.min() ?? 80) {
-            UserDefaults.standard.removeObject(forKey: notifiedKey)
+            defaults.removeObject(forKey: notifiedKey)
         }
     }
 
@@ -42,23 +50,25 @@ public final class NotificationService: Sendable {
 
     /// Check if we should send a burn rate notification (< 60 min to exhaustion, not already notified)
     public func shouldNotifyBurnRate(projection: BurnRateProjection, bucketLabel: String) -> Bool {
+        let enabled = defaults.object(forKey: "notificationBurnRateAlerts") as? Bool ?? true
+        guard enabled else { return false }
         guard let minutes = projection.minutesUntilExhaustion,
               minutes > 0, minutes <= 60,
               projection.velocityPerHour > 0 else {
             return false
         }
         let key = Self.burnRateKeyPrefix + bucketLabel
-        return !UserDefaults.standard.bool(forKey: key)
+        return !defaults.bool(forKey: key)
     }
 
     public func markBurnRateNotified(bucketLabel: String) {
         let key = Self.burnRateKeyPrefix + bucketLabel
-        UserDefaults.standard.set(true, forKey: key)
+        defaults.set(true, forKey: key)
     }
 
     public func resetBurnRateNotification(bucketLabel: String) {
         let key = Self.burnRateKeyPrefix + bucketLabel
-        UserDefaults.standard.removeObject(forKey: key)
+        defaults.removeObject(forKey: key)
     }
 
     public func sendBurnRateNotification(bucketLabel: String, minutesRemaining: Double) {
