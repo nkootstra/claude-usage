@@ -7,6 +7,7 @@ struct MenuBarLabel: View {
     @AppStorage("warningThreshold") private var warningThreshold = 50.0
     @AppStorage("criticalThreshold") private var criticalThreshold = 80.0
     @AppStorage("colorMode") private var colorMode = "traffic_light"
+    @AppStorage("menuBarLayout") private var menuBarLayout = MenuBarLayoutOption.fiveHourOnly.rawValue
 
     var body: some View {
         if viewModel.isEnterprise {
@@ -21,9 +22,11 @@ struct MenuBarLabel: View {
         let secondary = MenuBarMetrics.consumerSecondaryPercent(from: viewModel.usage)
         return HStack(spacing: 2) {
             percentText(primary)
-            Text("·")
-                .foregroundStyle(.secondary)
-            percentText(secondary)
+            if menuBarLayout == MenuBarLayoutOption.dual.rawValue {
+                Text("·")
+                    .foregroundStyle(.secondary)
+                percentText(secondary)
+            }
         }
         .font(.system(size: 11, weight: .medium, design: .rounded))
         .monospacedDigit()
