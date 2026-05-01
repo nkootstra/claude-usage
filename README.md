@@ -6,6 +6,8 @@ A macOS menubar app that tracks your Claude (Code) usage in real time.
 ![Swift 6](https://img.shields.io/badge/Swift-6-orange)
 ![License](https://img.shields.io/badge/License-Apache%202.0-green)
 
+![Claude Usage menubar popover](docs/images/claude-usage.png)
+
 ## Features
 
 - **Dual-percent menubar** — consumer plans show `5h% · 7d%` inline, each color-coded by threshold. Enterprise plans keep the ring gauge with monthly spend.
