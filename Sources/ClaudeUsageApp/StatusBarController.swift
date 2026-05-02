@@ -68,6 +68,7 @@ final class StatusBarController: NSObject {
 
         NotificationCenter.default
             .publisher(for: UserDefaults.didChangeNotification)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 DispatchQueue.main.async { [weak self] in
                     self?.updateStatusItemLength()

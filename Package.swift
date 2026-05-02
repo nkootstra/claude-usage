@@ -27,7 +27,7 @@ let package = Package(
         ),
         .testTarget(
             name: "ClaudeUsageTests",
-            dependencies: ["ClaudeUsageCore"],
+            dependencies: ["ClaudeUsageCore", "ClaudeUsageApp"],
             path: "Tests/ClaudeUsageTests"
         ),
     ]
