@@ -68,7 +68,7 @@ final class StatusBarController: NSObject {
 
         NotificationCenter.default
             .publisher(for: UserDefaults.didChangeNotification)
-            .receive(on: DispatchQueue.main)
+            .receiveOnMainQueue()
             .sink { [weak self] _ in
                 DispatchQueue.main.async { [weak self] in
                     self?.updateStatusItemLength()
@@ -101,5 +101,11 @@ final class StatusBarController: NSObject {
         // open, which paints a focus ring around `v1.2.0`. Clear it so the
         // popover opens with no focus ring; clicking a control still focuses it.
         popover.contentViewController?.view.window?.makeFirstResponder(nil)
+    }
+}
+
+extension Publisher {
+    func receiveOnMainQueue() -> Publishers.ReceiveOn<Self, DispatchQueue> {
+        receive(on: DispatchQueue.main)
     }
 }
