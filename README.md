@@ -1,5 +1,9 @@
 # Claude Usage
 
+> [!WARNING]
+> **This repository is archived and no longer maintained.**
+> Please switch to [CodexBar](https://codexbar.app) instead.
+
 A macOS menubar app that tracks your Claude (Code) usage in real time.
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-blue)
